@@ -2,6 +2,7 @@ package com.example.lcrealtime;
 import cn.leancloud.AVLogger;
 import cn.leancloud.AVOSCloud;
 import io.flutter.app.FlutterApplication;
+
 public class MyApplication extends FlutterApplication{
     private static final String LC_App_Id = "1eUivazFXYwJvuGpPl2LE4uY-gzGzoHsz";
     private static final String LC_App_Key = "nLMIaQSwIsHfF206PnOFoYYa";
