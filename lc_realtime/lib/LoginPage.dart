@@ -1,43 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:lcrealtime/ConversationListPage.dart';
 import 'Common/Global.dart';
 import 'package:leancloud_storage/leancloud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:leancloud_official_plugin/leancloud_plugin.dart';
+import 'HomeBottomBar.dart';
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _controllerName = new TextEditingController();
+  final TextEditingController _controllerClientId = new TextEditingController();
   final _formKey = GlobalKey<FormState>();
-  String _userName, _password;
+  String _clientID;
+  Client _client;
 
   @override
   void initState() {
     super.initState();
+    saveProfile();
   }
 
-  Future userLogin(String name, String password) async {
-//    CommonUtil.showLoadingDialog(context); //发起请求前弹出loading
-//
-//    initLeanCloud().then((response) {
-//      saveUserType(this._userIfLeancloud);
-//      saveUserProfile();
-//      login(name, password).then((value) {
-//        Navigator.pop(context); //销毁 loading
-//        Navigator.pushAndRemoveUntil(
-//            context,
-//            new MaterialPageRoute(builder: (context) => HomeBottomBarPage()),
-//            (_) => false);
-//      }).catchError((error) {
-//        showToastRed(error.message);
-//        Navigator.pop(context); //销毁 loading
-//      });
-//    }).catchError((error) {
-//      showToastRed(error.message);
-//      Navigator.pop(context); //销毁 loading
-//    });
+  saveProfile() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    String clientID = prefs.getString('clientID');
+    if (clientID != null || clientID != '') {
+      _controllerClientId.text = clientID;
+      setState(() {});
+    }
+  }
+
+  Future userLogin(String clientID) async {
+    CommonUtil.showLoadingDialog(context); //发起请求前弹出loading
+    saveClientID(clientID);
+
+
+    login(clientID).then((value) {
+      Navigator.pop(context); //销毁 loading
+      Navigator.pushAndRemoveUntil(
+          context,
+          new MaterialPageRoute(builder: (context) => HomeBottomBarPage()),
+          (_) => false);
+    }).catchError((error) {
+      showToastRed(error.message);
+      print(error.message);
+      Navigator.pop(context); //销毁 loading
+    });
+
+
+
   }
 
   @override
@@ -51,14 +63,12 @@ class _LoginPageState extends State<LoginPage> {
                 SizedBox(
                   height: kToolbarHeight,
                 ),
+                SizedBox(height: 80.0),
                 buildTitle(),
                 SizedBox(height: 20.0),
-                SizedBox(height: 30.0),
                 buildOpenIDTextField(),
                 SizedBox(height: 30.0),
-                SizedBox(height: 60.0),
                 buildClientOpenButton(context),
-                SizedBox(height: 30.0),
               ],
             )));
   }
@@ -71,17 +81,16 @@ class _LoginPageState extends State<LoginPage> {
         child: RaisedButton(
           child: Text(
             '开始聊天',
-            style: Theme.of(context).primaryTextTheme.headline,
+            style: TextStyle(fontSize: 18.0, color: Colors.white),
           ),
           color: Colors.blue,
           onPressed: () {
             if (_formKey.currentState.validate()) {
               //只有输入的内容符合要求通过才会到达此处
               _formKey.currentState.save();
-              userLogin(_userName, _password);
+              userLogin(_clientID);
             }
           },
-//          shape: StadiumBorder(side: BorderSide()),
         ),
       ),
     );
@@ -89,7 +98,7 @@ class _LoginPageState extends State<LoginPage> {
 
   TextFormField buildOpenIDTextField() {
     return TextFormField(
-      controller: _controllerName,
+      controller: _controllerClientId,
       decoration: InputDecoration(
         labelText: 'ID：',
       ),
@@ -99,7 +108,7 @@ class _LoginPageState extends State<LoginPage> {
         }
         return null;
       },
-      onSaved: (String value) => _userName = value,
+      onSaved: (String value) => _clientID = value,
     );
   }
 
@@ -110,10 +119,18 @@ class _LoginPageState extends State<LoginPage> {
           alignment: Alignment.center,
           child: Text(
             'LeanMessage',
-            style: TextStyle(fontSize: 28.0, color: Colors.blue),
+            style: TextStyle(fontSize: 26.0, color: Colors.blue),
           ),
         ));
   }
 
-  Future login(String name, String password) async {}
+  Future login(String clintID) async {
+    _client = Client(id: clintID);
+    await _client.open();
+  }
+
+  Future saveClientID(String clientID) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('clientID', clientID);
+  }
 }
