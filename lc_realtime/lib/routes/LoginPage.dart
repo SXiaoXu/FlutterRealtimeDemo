@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lcrealtime/ConversationListPage.dart';
-import 'Common/Global.dart';
+import 'package:lcrealtime/routes/ConversationListPage.dart';
+import '../Common/Global.dart';
 import 'package:leancloud_storage/leancloud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'HomeBottomBar.dart';
+
 class LoginPage extends StatefulWidget {
   @override
   _LoginPageState createState() => _LoginPageState();
@@ -14,29 +15,23 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _controllerClientId = new TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String _clientID;
-  Client _client;
 
   @override
   void initState() {
     super.initState();
-    saveProfile();
-  }
-
-  saveProfile() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String clientID = prefs.getString('clientID');
-    if (clientID != null || clientID != '') {
-      _controllerClientId.text = clientID;
-      setState(() {});
+    if(Global.clientID != null){
+      _clientID = Global.clientID;
+      setState(() {
+      });
     }
   }
 
   Future userLogin(String clientID) async {
     CommonUtil.showLoadingDialog(context); //发起请求前弹出loading
-    saveClientID(clientID);
-
+    Global.saveClientID(clientID);
 
     login(clientID).then((value) {
+
       Navigator.pop(context); //销毁 loading
       Navigator.pushAndRemoveUntil(
           context,
@@ -44,12 +39,8 @@ class _LoginPageState extends State<LoginPage> {
           (_) => false);
     }).catchError((error) {
       showToastRed(error.message);
-      print(error.message);
       Navigator.pop(context); //销毁 loading
     });
-
-
-
   }
 
   @override
@@ -65,12 +56,48 @@ class _LoginPageState extends State<LoginPage> {
                 ),
                 SizedBox(height: 80.0),
                 buildTitle(),
-                SizedBox(height: 20.0),
-                buildOpenIDTextField(),
+                SizedBox(height: 30.0),
+//                buildOpenIDTextField(),
+                buildChooseUserDropdownButton(context),
                 SizedBox(height: 30.0),
                 buildClientOpenButton(context),
               ],
             )));
+  }
+
+  Padding buildChooseUserDropdownButton(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 8.0),
+
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Text('ID： '),
+          InkWell(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                DropdownButton<String>(
+                  value: this._clientID,
+                  onChanged: (String newValue) {
+                    setState(() {
+                      this._clientID = newValue;
+                    });
+                  },
+                  items: allClients()
+                      .map<DropdownMenuItem<String>>((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Align buildClientOpenButton(BuildContext context) {
@@ -96,20 +123,8 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  TextFormField buildOpenIDTextField() {
-    return TextFormField(
-      controller: _controllerClientId,
-      decoration: InputDecoration(
-        labelText: 'ID：',
-      ),
-      validator: (String value) {
-        if (value.isEmpty) {
-          return '请输入用户名';
-        }
-        return null;
-      },
-      onSaved: (String value) => _clientID = value,
-    );
+  Text buildOpenIDTextField() {
+    return Text('ID：');
   }
 
   Padding buildTitle() {
@@ -125,12 +140,7 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future login(String clintID) async {
-    _client = Client(id: clintID);
-    await _client.open();
-  }
-
-  Future saveClientID(String clientID) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('clientID', clientID);
+    Client clint = Client(id: clintID);
+    await clint.open();
   }
 }

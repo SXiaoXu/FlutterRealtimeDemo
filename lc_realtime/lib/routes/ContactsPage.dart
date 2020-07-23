@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+//TODO 联系人列表-点击某个联系人就跳转到单独的聊天页面
 
 class ContactsPage extends StatefulWidget {
   @override

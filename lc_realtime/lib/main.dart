@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
 import 'Common/Global.dart';
-import 'package:lcrealtime/LoginPage.dart';
+import 'package:lcrealtime/routes/LoginPage.dart';
 
-void main() => Global.init().then((e) => runApp(MyApp()));
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  Global.init().then((e) => runApp(MyApp()));
+}
 
 class MyApp extends StatelessWidget {
   @override

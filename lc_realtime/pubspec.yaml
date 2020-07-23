@@ -23,7 +23,7 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.2
-  leancloud_official_plugin: ^1.0.0-beta.6
+  leancloud_official_plugin: ^1.0.0-beta.7
   leancloud_storage: ^0.2.9
   http: ^0.12.0+4
   fluttertoast: ^4.0.1
