@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lcrealtime/Routes/ConversationDetailPage.dart';
 import '../Common/Global.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 
@@ -43,11 +44,12 @@ class _ConversationListPageState extends State<ConversationListPage> {
                       color: Colors.grey,
                     );
                   },
+
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
                     Conversation con = snapshot.data[index];
-//                    print(con.id);
+                    print(con.id);
                     String name = con.name;
                     List members = con.members;
                     String lastMessage;
@@ -103,69 +105,77 @@ class _ConversationListPageState extends State<ConversationListPage> {
                       lastMessageFrom = con.lastMessage.fromClientID;
                       lastMessageString = '$lastMessageFrom：$lastMessage';
                     }
-                    return Container(
-                      padding: const EdgeInsets.all(10),
-                      child: Row(
-                        children: <Widget>[
-                          new Expanded(
-                            flex: 2,
-                            child: new Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                new Container(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 8.0, right: 8, left: 10),
-                                  child: new Text(
-                                    name,
-                                    style: new TextStyle(
-                                      fontWeight: FontWeight.bold,
+
+                    return GestureDetector(
+                        onTap: () {
+                          Conversation con = snapshot.data[index];
+                          onTapEvent(con);
+
+                        },//点击
+                        child: Container(
+                          padding: const EdgeInsets.all(10),
+                          color: Colors.white,
+                          child: Row(
+                            children: <Widget>[
+                              new Expanded(
+                                flex: 2,
+                                child: new Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    new Container(
+                                      padding: const EdgeInsets.only(
+                                          bottom: 8.0, right: 8, left: 10),
+                                      child: new Text(
+                                        name,
+                                        style: new TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                new Container(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 8.0, right: 8, left: 10),
-                                  child: new Text(
-                                    members.toString(),
-                                    style: new TextStyle(
-                                      color: Colors.grey[500],
+                                    new Container(
+                                      padding: const EdgeInsets.only(
+                                          bottom: 8.0, right: 8, left: 10),
+                                      child: new Text(
+                                        members.toString(),
+                                        style: new TextStyle(
+                                          color: Colors.grey[500],
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                new Container(
-                                  padding:
-                                      const EdgeInsets.only(right: 8, left: 10),
-                                  child: new Text(
-                                    lastMessageString,
-                                    style: new TextStyle(
-                                      color: Colors.black54,
+                                    new Container(
+                                      padding: const EdgeInsets.only(
+                                          right: 8, left: 10),
+                                      child: new Text(
+                                        lastMessageString,
+                                        style: new TextStyle(
+                                          color: Colors.black54,
+                                        ),
+                                      ),
                                     ),
-                                  ),
+                                  ],
                                 ),
-                              ],
-                            ),
+                              ),
+                              new Expanded(
+                                flex: 1,
+                                child: new Column(
+                                  crossAxisAlignment: CrossAxisAlignment.end,
+                                  children: [
+                                    new Container(
+                                      padding: const EdgeInsets.only(
+                                          bottom: 0, right: 0),
+                                      child: new Text(
+                                        time,
+                                        style: new TextStyle(
+                                          color: Colors.black54,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          new Expanded(
-                            flex: 1,
-                            child: new Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                new Container(
-                                  padding: const EdgeInsets.only(
-                                      bottom: 0, right: 0),
-                                  child: new Text(
-                                    time,
-                                    style: new TextStyle(
-                                      color: Colors.black54,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
+                        ));
                   },
                 );
               }
@@ -178,6 +188,14 @@ class _ConversationListPageState extends State<ConversationListPage> {
       ),
     );
   }
+
+  void onTapEvent( Conversation con) {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+        builder: (context) => new ConversationDetailPage(conversation: con),
+      ),
+    );  }
 
   Future<List<Conversation>> retrieveData() async {
     List<Conversation> conversations;
