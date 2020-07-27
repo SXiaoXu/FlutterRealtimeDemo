@@ -60,46 +60,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
                     if (con.lastMessage == null) {
                       time = getFormatDate(con.updatedAt.toString());
                     } else {
-                      Message message = con.lastMessage;
-                      if (message.binaryContent != null) {
-                        print('收到二进制消息：${message.binaryContent.toString()}');
-                        lastMessage = '收到二进制消息';
-                      } else if (message is TextMessage) {
-                        print('收到文本类型消息：${message.text}');
-                        lastMessage = message.text;
-                      } else if (message is LocationMessage) {
-                        print(
-                            '收到地理位置消息，坐标：${message.latitude},${message.longitude}');
-                        lastMessage = '地理位置消息';
-                      } else if (message is FileMessage) {
-                        if (message is ImageMessage) {
-                          print('收到图像消息，图像 URL：${message.url}');
-                          lastMessage = '收到图像消息';
-                        } else if (message is AudioMessage) {
-                          print('收到音频消息，消息时长：${message.duration}');
-                          lastMessage = '收到音频消息';
-                        } else if (message is VideoMessage) {
-                          print('收到视频消息，消息时长：${message.duration}');
-                          lastMessage = '收到视频消息';
-                        } else {
-                          print(
-                              '收到.txt/.doc/.md 等各种类型的普通文件消息，URL：${message.url}');
-                          lastMessage = '收到文件消息';
-                        }
-                      }
-//                      else if (message is CustomMessage) {
-//                        // CustomMessage 是自定义的消息类型
-//                        print('收到自定义类型消息');
-//                      }
-                      else {
-                        // 这里可以继续添加自定义类型的判断条件
-                        print('收到未知消息类型');
-                        lastMessage = '未知消息类型';
-//                        if (message.stringContent != null) {
-//                          print('收到普通消息：${message.stringContent}');
-//                          lastMessage = message.stringContent;
-//                        }
-                      }
+                      lastMessageString = getMessageString(con.lastMessage);
 
                       time = getFormatDate(con.lastMessageDate.toString());
                       lastMessageFrom = con.lastMessage.fromClientID;
@@ -110,8 +71,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
                         onTap: () {
                           Conversation con = snapshot.data[index];
                           onTapEvent(con);
-
-                        },//点击
+                        }, //点击
                         child: Container(
                           padding: const EdgeInsets.all(10),
                           color: Colors.white,
@@ -189,13 +149,14 @@ class _ConversationListPageState extends State<ConversationListPage> {
     );
   }
 
-  void onTapEvent( Conversation con) {
+  void onTapEvent(Conversation con) {
     Navigator.push(
       context,
       new MaterialPageRoute(
         builder: (context) => new ConversationDetailPage(conversation: con),
       ),
-    );  }
+    );
+  }
 
   Future<List<Conversation>> retrieveData() async {
     List<Conversation> conversations;
@@ -204,6 +165,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
       query.orderByDescending('updatedAt');
       //让查询结果附带一条最新消息
       query.includeLastMessage = true;
+
       conversations = await query.find();
     } catch (e) {
       print(e);

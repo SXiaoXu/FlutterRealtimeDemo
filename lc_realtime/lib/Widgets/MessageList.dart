@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
+import 'package:lcrealtime/Common/Global.dart';
 
 class MessageList extends StatefulWidget {
   final ScrollController scrollController;
@@ -14,14 +15,13 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
-
   @override
   Widget build(BuildContext context) {
 //    );
 //    SingleMesCollection mesCol = cTalkingCol(context);
     return Expanded(
         child: Container(
-      color: Color(0xfff5f5f5),
+//      color: Color(0xfff5f5f5),
       //    通过NotificationListener实现下拉操作拉取更多消息
 //            child: NotificationListener<OverscrollNotification>(
 
@@ -32,51 +32,87 @@ class _MessageListState extends State<MessageList> {
           if (snapshot.connectionState == ConnectionState.done) {
             if (snapshot.hasError) {
               return Text("Error: ${snapshot.error}");
+            } else if (snapshot.data.length == 0) {
+              return Text("暂无聊天记录");
             } else {
               return ListView.builder(
                 physics: const AlwaysScrollableScrollPhysics(),
                 itemCount: snapshot.data.length,
                 itemBuilder: (context, index) {
                   Message message = snapshot.data[index];
-                  String messageId = '消息ID：${message.id}';
+                  String fromClientID = message.fromClientID;
+                  // string time = message.sentDate;
 
                   return Container(
-                    padding: const EdgeInsets.all(10),
+                    color: Color(0xfff5f5f5),
+                    padding: const EdgeInsets.all(5),
                     child: Row(
                       children: <Widget>[
-                        new Text(
-                          messageId,
-                          style: new TextStyle(
-                            fontWeight: FontWeight.bold,
+                        new Expanded(
+
+                          child: new Column(
+
+                            crossAxisAlignment: index % 2 == 0
+                                ? CrossAxisAlignment.start
+                                : CrossAxisAlignment.end,
+                            children: [
+
+                              new Container(
+
+                              padding: const EdgeInsets.only(
+                                    right: 8, left: 8),
+                                child: new Text(
+
+                                  fromClientID,
+                                  style: new TextStyle(
+                                    fontWeight: FontWeight.normal,
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Flex(
+                                  direction: Axis.horizontal,
+                                  mainAxisAlignment: index % 2 == 0
+                                      ? MainAxisAlignment.start
+                                      : MainAxisAlignment.end,
+                                  children: <Widget>[
+                                    Container(
+                                        padding: const EdgeInsets.all(8.0),
+                                        constraints: BoxConstraints(
+                                          maxWidth: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.7,
+                                        ),
+                                        decoration: index % 2 == 0
+                                            ? BoxDecoration(
+                                                color: Colors.blue,
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(12.0),
+                                                ),
+                                              )
+                                            : BoxDecoration(
+                                                color: Colors.grey[300],
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(12.0),
+                                                ),
+                                              ),
+                                        child: new Text(
+                                          getMessageString(message),
+//                                          'Run `aqueduct serve` from this directory to run the application',
+                                          style: new TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: index % 2 == 0
+                                                  ? Colors.white
+                                                  : Colors.blue),
+                                        ))
+                                  ],
+                                ),
+                              )
+                            ],
                           ),
                         ),
-//                            new Expanded(
-//                              child: new Column(
-//                                crossAxisAlignment: CrossAxisAlignment.start,
-//                                children: [
-//                                  new Container(
-//                                    padding: const EdgeInsets.only(
-//                                        bottom: 8.0, right: 8, left: 10),
-//                                    child: new Text(
-//                                      'name',
-//                                      style: new TextStyle(
-//                                        fontWeight: FontWeight.bold,
-//                                      ),
-//                                    ),
-//                                  ),
-//                                  new Container(
-//                                    padding: const EdgeInsets.only(
-//                                        bottom: 8.0, right: 8, left: 10),
-//                                    child: new Text(
-//                                      'phoneNum',
-//                                      style: new TextStyle(
-//                                        color: Colors.grey[500],
-//                                      ),
-//                                    ),
-//                                  ),
-//                                ],
-//                              ),
-//                            ),
                       ],
                     ),
                   );
@@ -99,20 +135,60 @@ class _MessageListState extends State<MessageList> {
 //            )
     ));
   }
-  Future<List<Message>> queryessages() async {
 
-    // limit 取值范围 1~100，如调用 queryMessage 时不带 limit 参数，默认获取 20 条消息记录
+  Future<List<Message>> queryessages() async {
     List<Message> messages;
     try {
-      messages  = await this.widget.conversation.queryMessage(
-        limit: 10,
-      );
+      messages = await this.widget.conversation.queryMessage(
+            limit: 100,
+          );
       print(messages.length);
-
     } catch (e) {
       print(e.message);
     }
+
     return messages;
   }
+
+//  时间显示规则：
+//      当天的消息，以每 5 分钟为一个跨度显示时间
+//      消息超过 1 天、小于 1 周，显示为「星期 消息发送时间」
+//      消息大于 1 周，显示「日期 消息发送时间」
+
+//  calculateTimeVisibility(List<Message> list) {
+//    if (list.isEmpty) {
+//      return;
+//    }
+//    DateTime lastVisiableTime = list.last.sendTime;
+//    list.last.timeVisility = true;
+//
+//    //倒序遍历
+//    for (int i = list.length - 1; i >= 0; i--) {
+//      Message message = list[i];
+////    print(
+////        "message.sendTime.difference(DateTime.now()).inDays:${message.sendTime.difference(DateTime.now()).inDays}");
+//
+//      int diffDays = lastVisiableTime.difference(message.sendTime).inDays;
+//      if (diffDays == 0) {
+//        //同一天
+//        if (lastVisiableTime.difference(message.sendTime).inMinutes < 5) {
+//          //间隔小于上一次5分钟
+//          message.timeVisility = false;
+//        } else {
+//          //间隔大于上一次5分钟
+//          lastVisiableTime = message.sendTime;
+//          message.timeVisility = true;
+//        }
+//      } else if (diffDays < 7) {
+//        //超过1天、小于1周
+//        message.timeVisility = true;
+//        lastVisiableTime = message.sendTime;
+//      } else {
+//        //消息大于1周
+//        message.timeVisility = true;
+//        lastVisiableTime = message.sendTime;
+//      }
+//    }
+//  }
 
 }
