@@ -4,6 +4,7 @@ import 'package:lcrealtime/routes/LoginPage.dart';
 import 'ContactsPage.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import '../Common/Global.dart';
+import 'SelectChatMembers.dart';
 
 class HomeBottomBarPage extends StatefulWidget {
   @override
@@ -22,6 +23,7 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
   void initState() {
     super.initState();
   }
+
   //退出
   Future clientClose() async {
     CommonUtil.showLoadingDialog(context); //发起请求前弹出loading
@@ -31,12 +33,13 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
       Navigator.pushAndRemoveUntil(
           context,
           new MaterialPageRoute(builder: (context) => LoginPage()),
-              (_) => false);
+          (_) => false);
     }).catchError((error) {
       showToastRed(error.message);
       Navigator.pop(context); //销毁 loading
     });
   }
+
   Future<bool> showConfirmDialog() async {
     return showDialog<bool>(
       context: context,
@@ -80,6 +83,28 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
     return content;
   }
 
+  Align navLeftButton(BuildContext context) {
+    Align content;
+    content = Align(
+      alignment: Alignment.center,
+      child: Padding(
+        padding: EdgeInsets.only(top: 0.0),
+        child: IconButton(
+            icon: Icon(Icons.add),
+            onPressed: () {
+
+                Navigator.push(
+                  context,
+                  new MaterialPageRoute(
+                    builder: (context) => new SelectChatMembers(),
+                  ),
+                );
+            }),
+      ),
+    );
+    return content;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -91,8 +116,8 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
         actions: <Widget>[
           navRightButton(context),
         ],
+        leading: navLeftButton(context), //导航栏左侧菜单
       ),
-//      drawer: new MyInformationPage(), //抽屉
       body: this._pages[this._currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         // 底部导航
@@ -113,6 +138,7 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
       ),
     );
   }
+
   Future close() async {
     if (Global.clientID != null) {
       Global.removeClientID();
@@ -120,8 +146,7 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
       Client clint = Client(id: Global.clientID);
       await clint.close();
       Global.removeClientID();
-
-    }else{
+    } else {
       showToastRed('有 BUG，重启一下试试。。。');
     }
   }

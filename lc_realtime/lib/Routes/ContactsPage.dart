@@ -38,7 +38,7 @@ class _ContactsPageState extends State<ContactsPage> {
             itemBuilder: (BuildContext context, int index) {
               return GestureDetector(
                 onTap: () {
-                  onTapEvent(_list[index]);
+                  showConfirmDialog(_list[index]);
                 },
                 child: ListTile(title: Text(_list[index])),
               );
@@ -70,5 +70,30 @@ class _ContactsPageState extends State<ContactsPage> {
       showToastRed('用户未登录');
       return;
     }
+  }
+  Future<bool> showConfirmDialog(String name) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("提示"),
+          content: Text("确认开始与 $name 聊天？"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("取消"),
+              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
+            ),
+            FlatButton(
+              child: Text("确认"),
+              onPressed: () {
+                onTapEvent(name);
+                //关闭对话框并返回true
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
