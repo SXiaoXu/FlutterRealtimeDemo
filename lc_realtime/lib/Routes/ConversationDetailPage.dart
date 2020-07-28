@@ -27,7 +27,7 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
-          title: Text('name'),
+          title: Text(this.widget.conversation.name),
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.settings, color: Colors.white),

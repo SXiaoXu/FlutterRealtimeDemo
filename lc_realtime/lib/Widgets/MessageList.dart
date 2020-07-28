@@ -44,25 +44,20 @@ class _MessageListState extends State<MessageList> {
                   // string time = message.sentDate;
 
                   return Container(
-                    color: Color(0xfff5f5f5),
+//                    color: Color(0xfff5f5f5),
                     padding: const EdgeInsets.all(5),
                     child: Row(
                       children: <Widget>[
                         new Expanded(
-
                           child: new Column(
-
                             crossAxisAlignment: index % 2 == 0
                                 ? CrossAxisAlignment.start
                                 : CrossAxisAlignment.end,
                             children: [
-
                               new Container(
-
-                              padding: const EdgeInsets.only(
-                                    right: 8, left: 8),
+                                padding:
+                                    const EdgeInsets.only(right: 8, left: 8),
                                 child: new Text(
-
                                   fromClientID,
                                   style: new TextStyle(
                                     fontWeight: FontWeight.normal,
