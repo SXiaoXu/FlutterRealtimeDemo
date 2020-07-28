@@ -16,7 +16,12 @@ class ConversationDetailPage extends StatefulWidget {
 class _ConversationDetailPageState extends State<ConversationDetailPage> {
   ScrollController _scrollController =
       ScrollController(initialScrollOffset: 18000);
+  @override
+  void initState() {
+    super.initState();
+    print(this.widget.conversation.id);
 
+  }
   @override
   Widget build(BuildContext context) {
 //    UserModle myInfo = Provider.of<UserModle>(context);

@@ -100,6 +100,11 @@ class _SelectChatMembersState extends State<SelectChatMembers> {
     });
     print(_selectedClientList);
 
+    if (_selectedClientList.length == 0) {
+      showToastRed('请选择成员！');
+      return;
+    }
+
     if (Global.clientID != null) {
       Client currentClient = Client(id: Global.clientID);
       try {

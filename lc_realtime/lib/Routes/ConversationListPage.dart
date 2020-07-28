@@ -10,7 +10,6 @@ class ConversationListPage extends StatefulWidget {
 
 class _ConversationListPageState extends State<ConversationListPage> {
   Client _client;
-  String _clientID;
 
   @override
   void initState() {
@@ -49,10 +48,13 @@ class _ConversationListPageState extends State<ConversationListPage> {
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
                     Conversation con = snapshot.data[index];
+//                    con.fetchReceiptTimestamps();
+
                     print(con.id);
+
                     String name = con.name;
                     List members = con.members;
-                    String lastMessage;
+
                     String time;
                     String lastMessageFrom = '';
                     String lastMessageString = '暂无新消息';
@@ -64,7 +66,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
 
                       time = getFormatDate(con.lastMessageDate.toString());
                       lastMessageFrom = con.lastMessage.fromClientID;
-                      lastMessageString = '$lastMessageFrom：$lastMessage';
+                      lastMessageString = '$lastMessageFrom：$lastMessageString';
                     }
 
                     return GestureDetector(
@@ -165,8 +167,8 @@ class _ConversationListPageState extends State<ConversationListPage> {
       query.orderByDescending('updatedAt');
       //让查询结果附带一条最新消息
       query.includeLastMessage = true;
-
       conversations = await query.find();
+      Conversation con = conversations.first;
     } catch (e) {
       print(e);
       showToastRed(e.message);
