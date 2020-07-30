@@ -3,6 +3,8 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+
+
 void showToastRed(String msg) {
   Fluttertoast.showToast(
       msg: msg,
@@ -123,8 +125,13 @@ class CommonUtil {
         });
   }
 }
-
+enum MyEvent{
+  NewMessage,
+  ScrollviewDidScroll
+}
 class Global {
+
+
   static SharedPreferences _prefs;
   static String clientID;
 
@@ -142,7 +149,6 @@ class Global {
     }
   }
 
-  // 持久化 User 信息
   static saveClientID(String id) {
     _prefs.setString("clienidtID", id);
     clientID = id;

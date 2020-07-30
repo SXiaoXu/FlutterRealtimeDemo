@@ -20,15 +20,9 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
   void initState() {
     super.initState();
     print(this.widget.conversation.id);
-
   }
   @override
   Widget build(BuildContext context) {
-//    UserModle myInfo = Provider.of<UserModle>(context);
-//    String sayTo = myInfo.sayTo;
-//    cUsermodal(context).toastContext = context;
-//    //  更新桌面icon
-//    updateBadger(context);
     return Scaffold(
         appBar: AppBar(
           centerTitle: true,
@@ -46,7 +40,7 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
           child: Column(
             children: <Widget>[
               MessageList(scrollController: _scrollController,conversation: this.widget.conversation),
-              InputMessageView(scrollController: _scrollController)
+              InputMessageView(scrollController: _scrollController,conversation: this.widget.conversation),
             ],
           ),
         ));
@@ -54,10 +48,12 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
 
   //    点击跳转好友详情页
   void toFriendInfo() {
-    Navigator.pushNamed(context, 'friendInfo');
+//    Navigator.pushNamed(context, 'friendInfo');
   }
 
   void slideToEnd() {
     _scrollController.jumpTo(_scrollController.position.maxScrollExtent + 40);
   }
 }
+
+

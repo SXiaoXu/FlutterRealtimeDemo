@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
+import 'package:lcrealtime/States/ConversationModel.dart';
+import 'package:lcrealtime/States/GlobalEvent.dart';
+import 'package:leancloud_official_plugin/leancloud_plugin.dart';
+import 'package:lcrealtime/States/ChangeNotifierProvider.dart';
 
 class InputMessageView extends StatefulWidget {
   final ScrollController scrollController;
+  final Conversation conversation;
 
-  InputMessageView({Key key, @required this.scrollController})
+  InputMessageView(
+      {Key key, @required this.scrollController, this.conversation})
       : super(key: key);
 
   @override
@@ -14,7 +20,7 @@ class InputMessageView extends StatefulWidget {
 class _InputMessageViewState extends State<InputMessageView> {
   TextEditingController _messController = new TextEditingController();
   GlobalKey _formKey = new GlobalKey<FormState>();
-  bool canSend = false;
+  bool _canSend = false;
 
   @override
   Widget build(BuildContext context) {
@@ -25,39 +31,50 @@ class _InputMessageViewState extends State<InputMessageView> {
 
             color: Colors.white,
             child: TextFormField(
-              autofocus: true,
+//              autofocus: true,
               controller: _messController,
-//              onChanged: validateInput,
+              onChanged: validateInput,
               decoration: InputDecoration(
                   suffixIcon: IconButton(
-                icon: Icon(Icons.send,
-                    color: canSend ? Colors.blue : Colors.grey),
-//                onPressed: sendMess,
-              )),
+                    icon: Icon(Icons.send,
+                        color: _canSend ? Colors.blue : Colors.grey),
+                    onPressed: sendMessage,
+                  )),
             )));
   }
 
-//  void validateInput(String test) {
-//    setState(() {
-//      canSend = test.length > 0;
-//    });
-//  }
-//
-//  void sendMess() {
-//    if (!canSend) {
-//      return;
-//    }
+  void validateInput(String test) {
+    setState(() {
+      _canSend = test.length > 0;
+    });
+  }
 
-    // 保证在组件build的第一帧时才去触发取消清空内容
-//    WidgetsBinding.instance.addPostFrameCallback((_) {
-//      _messController.clear();
-//    });
-    //  键盘自动收起
-    //FocusScope.of(context).requestFocus(FocusNode());
-//    widget.scrollController
-//        .jumpTo(widget.scrollController.position.maxScrollExtent + 50);
-//    setState(() {
-//      canSend = false;
-//    });
-//  }
+  Future sendMessage() async {
+    if (_messController.text != null && _messController.text != '') {
+      try {
+        TextMessage textMessage = TextMessage();
+        textMessage.text = _messController.text;
+
+        await this.widget.conversation.send(message: textMessage);
+        showToastGreen('发送成功');
+        print('发送成功');
+        // listen 设为false，不建立依赖关系
+//        ChangeNotifierProvider.of<ConversationModel>(context, listen: false)
+//            .sendNewMessage();
+        mess.emit(MyEvent.NewMessage);
+
+        _messController.clear();
+        FocusScope.of(context).requestFocus(FocusNode());
+//     widget.scrollController.jumpTo(widget.scrollController.position.maxScrollExtent + 50);
+        _canSend = false;
+      } catch (e) {
+        showToastRed(e.toString());
+        print(e.toString());
+      }
+    } else {
+      showToastRed('未输入消息内容');
+      return;
+    }
+  }
 }
+
