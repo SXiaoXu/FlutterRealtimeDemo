@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/States/ConversationModel.dart';
@@ -5,12 +7,20 @@ import 'package:lcrealtime/States/GlobalEvent.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/States/ChangeNotifierProvider.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
 
 class MessageList extends StatefulWidget {
   final ScrollController scrollController;
   final Conversation conversation;
+  final List<Message> firstPageMessages;
+  final Message firstMessage;
 
-  MessageList({Key key, @required this.scrollController, this.conversation})
+  MessageList(
+      {Key key,
+      @required this.scrollController,
+      this.conversation,
+      this.firstPageMessages,
+      this.firstMessage})
       : super(key: key);
 
   @override
@@ -18,17 +28,35 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
+  RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+  //用于翻页
+  Message _oldMessage;
+  List<Message> _showMessageList;
+
   @override
   void initState() {
     super.initState();
+    _oldMessage =widget.firstMessage;
+    _showMessageList = widget.firstPageMessages;
+
+    //第一次进来滚到底
+    Timer(
+        Duration(milliseconds: 100),
+        () => widget.scrollController
+            .jumpTo(widget.scrollController.position.maxScrollExtent));
+
     mess.on(MyEvent.NewMessage, (arg) {
-      if(mounted){
-        setState(() {});
-        print('监听到新的消息。。');
+      if (mounted) {
+        print('我发送了新消息' + getMessageString(arg));
+        setState(() {
+          _showMessageList.add(arg);
+          widget.scrollController
+              .jumpTo(widget.scrollController.position.maxScrollExtent + 50);
+        });
       }
     });
 
-//
     Client client = Client(id: Global.clientID);
     client.onMessage = ({
       Client client,
@@ -37,155 +65,142 @@ class _MessageListState extends State<MessageList> {
     }) {
       if (message != null) {
         print('收到的消息是：${getMessageString(message)}');
-        setState(() {});
+        setState(() {
+          _showMessageList.add(message);
+          widget.scrollController
+              .jumpTo(widget.scrollController.position.maxScrollExtent + 50);
+        });
       }
     };
   }
 
-//  _getMoreMessage() async {
-//    if (!isLoading) {
-//      if (acculateReqLength == 0) {
-//        return;
-//      }
-//      setState(() {
-//        isLoading = true;
-//      });
-//      SingleMesCollection collection = cTalkingCol(context);
-//      var res = await Network.get('getMoreMessage', {
-//        'currentLength': collection.message.length,
-//        'toFriend': cSayto(context),
-//        'userName': cUser(context),
-//        'length': acculateReqLength
-//      });
-//      List<SingleMessage> addList = res.data['message'].map<SingleMessage>((item) {
-//        return SingleMessage.fromJson(item);
-//      }).toList();
-//      collection.message.insertAll(0, addList);
-//      setState(() {
-//        isLoading = false;
-//      });
-//    }
-//  }
+  void _onRefresh() async {
+    //每次查询 10 条消息
+    try {
+      // 以上一页的最早的消息作为开始，继续向前拉取消息
+      List<Message> messages2 = await this.widget.conversation.queryMessage(
+            startTimestamp: _oldMessage.sentTimestamp,
+            startMessageID: _oldMessage.id,
+            startClosed: false,
+            limit: 10,
+          );
+      _oldMessage = messages2.first;
+      _showMessageList.insertAll(0, messages2);
+      setState(() {});
+    } catch (e) {
+      print(e);
+    }
+    _refreshController.refreshCompleted();
+  }
 
   @override
   Widget build(BuildContext context) {
-//    );
-//    SingleMesCollection mesCol = cTalkingCol(context);
     return Expanded(
-      child: Container(
-//      child: NotificationListener<OverscrollNotification>(
-
-//      color: Color(0xfff5f5f5),
-        //    通过NotificationListener实现下拉操作拉取更多消息
-//            child: NotificationListener<OverscrollNotification>(
-
-//            child: ChangeNotifierProvider<ConversationModel>(
-//      data: ConversationModel(),
-        child: FutureBuilder<List<Message>>(
-          future: queryessages(),
-          builder: (BuildContext context, AsyncSnapshot snapshot) {
-            // 请求已结束
-            if (snapshot.connectionState == ConnectionState.done) {
-              if (snapshot.hasError) {
-                return Text("Error: ${snapshot.error}");
-              } else if (snapshot.data.length == 0) {
+        child: Container(
+      child: SmartRefresher(
+          enablePullDown: true,
+          header: ClassicHeader(),
+          onRefresh: _onRefresh,
+          controller: _refreshController,
+          child: ListView.builder(
+            physics: const AlwaysScrollableScrollPhysics(),
+            controller: widget.scrollController,
+            itemCount: _showMessageList.length,
+            itemBuilder: (context, index) {
+              if (_showMessageList.length == 0) {
                 return Text("暂无聊天记录");
-              } else {
-                return ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  controller: widget.scrollController,
-                  itemCount: snapshot.data.length,
-                  itemBuilder: (context, index) {
-                    Message message = snapshot.data[index];
-                    String fromClientID = message.fromClientID;
-                    // string time = message.sentDate;//
+              }
+              Message message = _showMessageList[index];
+              String fromClientID = message.fromClientID;
+              // string time = message.sentDate;//
 //                  var conNew = ChangeNotifierProvider.of<ConversationModel>(context);
-                    return Container(
+              return Container(
 //                    color: Color(0xfff5f5f5),
-                      padding: const EdgeInsets.all(5),
-                      child: Row(
-                        children: <Widget>[
-                          new Expanded(
-                            child: new Column(
-                              crossAxisAlignment: index % 2 == 0
-                                  ? CrossAxisAlignment.start
-                                  : CrossAxisAlignment.end,
-                              children: [
-                                new Container(
-                                  padding:
-                                      const EdgeInsets.only(right: 8, left: 8),
-                                  child: new Text(
-                                    fromClientID,
-                                    style: new TextStyle(
-                                      fontWeight: FontWeight.normal,
-                                    ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Flex(
-                                    direction: Axis.horizontal,
-                                    mainAxisAlignment: index % 2 == 0
-                                        ? MainAxisAlignment.start
-                                        : MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      Container(
-                                          padding: const EdgeInsets.all(8.0),
-                                          constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.7,
-                                          ),
-                                          decoration: index % 2 == 0
-                                              ? BoxDecoration(
-                                                  color: Colors.blue,
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(12.0),
-                                                  ),
-                                                )
-                                              : BoxDecoration(
-                                                  color: Colors.grey[300],
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(12.0),
-                                                  ),
-                                                ),
-                                          child: new Text(
-                                            getMessageString(message),
-//                                          'Run `aqueduct serve` from this directory to run the application',
-                                            style: new TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: index % 2 == 0
-                                                    ? Colors.white
-                                                    : Colors.blue),
-                                          ))
-                                    ],
-                                  ),
-                                )
-                              ],
+                padding: const EdgeInsets.all(5),
+                child: Row(
+                  children: <Widget>[
+                    new Expanded(
+                      child: new Column(
+                        crossAxisAlignment: index % 2 == 0
+                            ? CrossAxisAlignment.start
+                            : CrossAxisAlignment.end,
+                        children: [
+                          new Container(
+                            padding: const EdgeInsets.only(right: 8, left: 8),
+                            child: new Text(
+                              fromClientID,
+                              style: new TextStyle(
+                                fontWeight: FontWeight.normal,
+                              ),
                             ),
                           ),
+                          Padding(
+                            padding: const EdgeInsets.all(2.0),
+                            child: Flex(
+                              direction: Axis.horizontal,
+                              mainAxisAlignment: index % 2 == 0
+                                  ? MainAxisAlignment.start
+                                  : MainAxisAlignment.end,
+                              children: <Widget>[
+                                Container(
+                                    padding: const EdgeInsets.all(8.0),
+                                    constraints: BoxConstraints(
+                                      maxWidth:
+                                          MediaQuery.of(context).size.width *
+                                              0.7,
+                                    ),
+                                    decoration: index % 2 == 0
+                                        ? BoxDecoration(
+                                            color: Colors.blue,
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12.0),
+                                            ),
+                                          )
+                                        : BoxDecoration(
+                                            color: Colors.grey[300],
+                                            borderRadius: BorderRadius.all(
+                                              Radius.circular(12.0),
+                                            ),
+                                          ),
+                                    child: new Text(
+                                      getMessageString(message),
+//                                          'Run `aqueduct serve` from this directory to run the application',
+                                      style: new TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: index % 2 == 0
+                                              ? Colors.white
+                                              : Colors.blue),
+                                    ))
+                              ],
+                            ),
+                          )
                         ],
                       ),
-                    );
-                  },
-                );
-              }
-            } else {
-              // 请求未结束，显示loading
-              return CircularProgressIndicator();
-            }
-          },
-        ),
+                    ),
+                  ],
+                ),
+              );
+//                } else {
+//                  // 请求未结束，显示loading
+////                  return CircularProgressIndicator();
+//                  return Text("暂无聊天记录");
+//                }
+            },
+          )
+//                  }
+//                } else {
+//                  // 请求未结束，显示loading
+//                  return CircularProgressIndicator();
+//                }
+//              },
+//            ),
 //          onNotification: (OverscrollNotification notification) {
 //            if (widget.scrollController.position.pixels <= 10) {
 ////            _getMoreMessage();
 //            }
 //            return true;
 //          }
-      ),
+          ),
 
       //  注册通知函数
 //              onNotification: (OverscrollNotification notification) {
@@ -194,21 +209,8 @@ class _MessageListState extends State<MessageList> {
 //                }
 //                return true;
 //              },
-//            )
-    );
-  }
-
-  Future<List<Message>> queryessages() async {
-    List<Message> messages;
-    try {
-      messages = await this.widget.conversation.queryMessage(
-            limit: 100,
-          );
-      print(messages.length);
-    } catch (e) {
-      print(e.message);
-    }
-    return messages;
+//
+    ));
   }
 
 //  时间显示规则：

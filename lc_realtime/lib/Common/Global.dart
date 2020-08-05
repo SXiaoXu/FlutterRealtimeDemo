@@ -3,8 +3,6 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-
-
 void showToastRed(String msg) {
   Fluttertoast.showToast(
       msg: msg,
@@ -96,16 +94,16 @@ String getFormatDate(String dateOriginal) {
   //传入的日期与今天的23:59:59秒进行比较
   Duration diff = standardDate.difference(DateTime.parse(dateOriginal));
   if (diff < Duration(days: 1)) {
-  //今天
-  // 09:20
+    //今天
+    // 09:20
     return dateOriginal.substring(11, 16);
   } else if (diff >= Duration(days: 1) && diff < Duration(days: 2)) {
-  //昨天
-  //昨天 09:20
+    //昨天
+    //昨天 09:20
     return "昨天 " + dateOriginal.substring(11, 16);
   } else {
-  //昨天之前
-  // 2019-01-23 09:20
+    //昨天之前
+    // 2019-01-23 09:20
     return dateOriginal.substring(0, 16);
   }
 }
@@ -125,13 +123,10 @@ class CommonUtil {
         });
   }
 }
-enum MyEvent{
-  NewMessage,
-  ScrollviewDidScroll
-}
+
+enum MyEvent { NewMessage, ScrollviewDidScroll }
+
 class Global {
-
-
   static SharedPreferences _prefs;
   static String clientID;
 

@@ -28,7 +28,6 @@ class _InputMessageViewState extends State<InputMessageView> {
         key: _formKey,
         child: Container(
 //            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-
             color: Colors.white,
             child: TextFormField(
 //              autofocus: true,
@@ -42,7 +41,6 @@ class _InputMessageViewState extends State<InputMessageView> {
                   )),
             )));
   }
-
   void validateInput(String test) {
     setState(() {
       _canSend = test.length > 0;
@@ -54,18 +52,16 @@ class _InputMessageViewState extends State<InputMessageView> {
       try {
         TextMessage textMessage = TextMessage();
         textMessage.text = _messController.text;
-
         await this.widget.conversation.send(message: textMessage);
         showToastGreen('发送成功');
         print('发送成功');
         // listen 设为false，不建立依赖关系
 //        ChangeNotifierProvider.of<ConversationModel>(context, listen: false)
 //            .sendNewMessage();
-        mess.emit(MyEvent.NewMessage);
+        mess.emit(MyEvent.NewMessage,textMessage);
 
         _messController.clear();
         FocusScope.of(context).requestFocus(FocusNode());
-//     widget.scrollController.jumpTo(widget.scrollController.position.maxScrollExtent + 50);
         _canSend = false;
       } catch (e) {
         showToastRed(e.toString());
