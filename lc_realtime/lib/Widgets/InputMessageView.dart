@@ -54,12 +54,7 @@ class _InputMessageViewState extends State<InputMessageView> {
         textMessage.text = _messController.text;
         await this.widget.conversation.send(message: textMessage);
         showToastGreen('发送成功');
-        print('发送成功');
-        // listen 设为false，不建立依赖关系
-//        ChangeNotifierProvider.of<ConversationModel>(context, listen: false)
-//            .sendNewMessage();
         mess.emit(MyEvent.NewMessage,textMessage);
-
         _messController.clear();
         FocusScope.of(context).requestFocus(FocusNode());
         _canSend = false;

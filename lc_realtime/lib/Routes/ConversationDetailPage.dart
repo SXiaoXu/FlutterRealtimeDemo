@@ -19,7 +19,6 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
   ScrollController _scrollController = ScrollController();
 
   Message _firstMessage;
-  List<Message> _firstPageMessages;
 
   @override
   void initState() {
@@ -81,7 +80,6 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
       messages = await this.widget.conversation.queryMessage(
             limit: 10,
           );
-      print(messages.length);
       _firstMessage = messages.first;
     } catch (e) {
       print(e.message);

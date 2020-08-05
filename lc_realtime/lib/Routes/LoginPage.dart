@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:lcrealtime/routes/ConversationListPage.dart';
 import '../Common/Global.dart';
 import 'package:leancloud_storage/leancloud.dart';
@@ -12,7 +13,6 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final TextEditingController _controllerClientId = new TextEditingController();
   final _formKey = GlobalKey<FormState>();
   String _clientID;
 
@@ -140,7 +140,11 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future login(String clintID) async {
-    Client clint = Client(id: clintID);
-    await clint.open();
+
+    CurrentClient currentClint = CurrentClient();
+    if(clintID != currentClint.client.id){
+      currentClint.updateClient();
+    }
+    await currentClint.client.open();
   }
 }

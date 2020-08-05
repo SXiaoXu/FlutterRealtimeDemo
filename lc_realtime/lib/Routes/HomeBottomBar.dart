@@ -5,6 +5,7 @@ import 'ContactsPage.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import '../Common/Global.dart';
 import 'SelectChatMembers.dart';
+import 'package:lcrealtime/Models/CurrentClient.dart';
 
 class HomeBottomBarPage extends StatefulWidget {
   @override
@@ -141,10 +142,8 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
 
   Future close() async {
     if (Global.clientID != null) {
-      Global.removeClientID();
-
-      Client clint = Client(id: Global.clientID);
-      await clint.close();
+      CurrentClient currentClint = CurrentClient();
+      await currentClint.client.close();
       Global.removeClientID();
     } else {
       showToastRed('有 BUG，重启一下试试。。。');

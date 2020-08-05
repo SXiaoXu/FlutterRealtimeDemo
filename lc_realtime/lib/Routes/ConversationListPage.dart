@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:lcrealtime/Routes/ConversationDetailPage.dart';
 import '../Common/Global.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
@@ -9,19 +10,11 @@ class ConversationListPage extends StatefulWidget {
 }
 
 class _ConversationListPageState extends State<ConversationListPage> {
-  Client _client;
 
   @override
   void initState() {
     super.initState();
-    if (Global.clientID != null) {
-      _client = Client(id: Global.clientID);
-      setState(() {});
-    } else {
-      showToastRed('用户未登录');
-    }
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -48,7 +41,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
                     Conversation con = snapshot.data[index];
-//                    con.fetchReceiptTimestamps();
+                    con.fetchReceiptTimestamps();
 
                     print(con.id);
 
@@ -56,17 +49,16 @@ class _ConversationListPageState extends State<ConversationListPage> {
                     List members = con.members;
 
                     String time;
-                    String lastMessageFrom = '';
                     String lastMessageString = '暂无新消息';
 
                     if (con.lastMessage == null) {
+                      print('-------------------->' + con.updatedAt.toString());
                       time = getFormatDate(con.updatedAt.toString());
                     } else {
-                      lastMessageString = getMessageString(con.lastMessage);
-
                       time = getFormatDate(con.lastMessageDate.toString());
-                      lastMessageFrom = con.lastMessage.fromClientID;
-                      lastMessageString = '$lastMessageFrom：$lastMessageString';
+                      lastMessageString = con.lastMessage.fromClientID +
+                          ':' +
+                          getMessageString(con.lastMessage);
                     }
 
                     return GestureDetector(
@@ -161,14 +153,14 @@ class _ConversationListPageState extends State<ConversationListPage> {
   }
 
   Future<List<Conversation>> retrieveData() async {
+    CurrentClient currentClient  = CurrentClient();
     List<Conversation> conversations;
     try {
-      ConversationQuery query = _client.conversationQuery();
+      ConversationQuery query = currentClient.client.conversationQuery();
       query.orderByDescending('updatedAt');
       //让查询结果附带一条最新消息
       query.includeLastMessage = true;
       conversations = await query.find();
-      Conversation con = conversations.first;
     } catch (e) {
       print(e);
       showToastRed(e.message);
