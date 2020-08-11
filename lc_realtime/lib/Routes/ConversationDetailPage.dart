@@ -16,7 +16,7 @@ class ConversationDetailPage extends StatefulWidget {
 }
 
 class _ConversationDetailPageState extends State<ConversationDetailPage> {
-  ScrollController _scrollController = ScrollController(keepScrollOffset: true);
+//  ScrollController _scrollController = ScrollController(keepScrollOffset: true);
 
   Message _firstMessage;
 
@@ -47,17 +47,22 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
               // 请求已结束
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasError) {
-                  return Text("Error: ${snapshot.error}");
-                } else {
+                  return Container(
+                    height: 60.0,
+                    child: Center(
+                      child: Text("Error: ${snapshot.error}"),
+                    ),
+                  );
+                }else {
                   return Column(
                     children: <Widget>[
                       MessageList(
-                          scrollController: _scrollController,
+//                          scrollController: _scrollController,
                           conversation: this.widget.conversation,
                           firstPageMessages: snapshot.data,
                           firstMessage: _firstMessage),
                       InputMessageView(
-                          scrollController: _scrollController,
+//                          scrollController: _scrollController,
                           conversation: this.widget.conversation),
                     ],
                   );

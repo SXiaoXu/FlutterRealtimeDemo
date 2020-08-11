@@ -6,11 +6,13 @@ import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:lcrealtime/States/ChangeNotifierProvider.dart';
 
 class InputMessageView extends StatefulWidget {
-  final ScrollController scrollController;
+//  final ScrollController scrollController;
   final Conversation conversation;
 
   InputMessageView(
-      {Key key, @required this.scrollController, this.conversation})
+      {Key key, @required
+//      this.scrollController,
+        this.conversation})
       : super(key: key);
 
   @override
