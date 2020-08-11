@@ -16,7 +16,7 @@ class ConversationDetailPage extends StatefulWidget {
 }
 
 class _ConversationDetailPageState extends State<ConversationDetailPage> {
-  ScrollController _scrollController = ScrollController();
+  ScrollController _scrollController = ScrollController(keepScrollOffset: true);
 
   Message _firstMessage;
 

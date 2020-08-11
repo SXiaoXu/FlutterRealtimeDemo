@@ -41,7 +41,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
                     Conversation con = snapshot.data[index];
-                    con.fetchReceiptTimestamps();
+//                    con.fetchReceiptTimestamps();
 
                     print(con.id);
 

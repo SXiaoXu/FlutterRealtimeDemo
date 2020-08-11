@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/States/ConversationModel.dart';
@@ -31,11 +32,22 @@ class MessageList extends StatefulWidget {
 class _MessageListState extends State<MessageList> {
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
-  //用于翻页
-  Message _oldMessage;
+//  ItemScrollController _scrollController = ItemScrollController();
+
+
   List<Message> _showMessageList;
   bool _isMessagePositionLest = false;
   CurrentClient currentClint;
+
+  //翻页位置的第一条消息
+  Message _oldMessage;
+  //当前页的最大可滚动范围
+  double _maxScrollExtent;
+  //用于记录每一页消息的高度
+  Map<int, double> _heightMap = new Map();
+  //用于记录当前页数
+  int _currentPages = 0;
+  double _lastpagePosition;
 
   @override
   void initState() {
@@ -44,10 +56,27 @@ class _MessageListState extends State<MessageList> {
     _showMessageList = widget.firstPageMessages;
 
     //第一次进来滚到底
-    Timer(
-        Duration(milliseconds: 100),
-        () => widget.scrollController
-            .jumpTo(widget.scrollController.position.maxScrollExtent));
+    Timer(Duration(milliseconds: 100), () {
+      widget.scrollController
+          .jumpTo(widget.scrollController.position.maxScrollExtent);
+//      _maxScrollExtent = widget.scrollController.position.maxScrollExtent;
+      print('init------------->--' + _maxScrollExtent.toString());
+//          _heightMap[_currentPages] = _maxScrollExtent;
+
+      //第0页的高度；
+//          _maxScrollExtent  = widget.scrollController.position.pixels;
+//          _heightMap[_currentPages] = _maxScrollExtent;
+
+//              _list.forEach((item) {
+//                //index:_list.indexOf(item)
+//                _checkboxSelectedList[item] = false;
+//              });
+//          _checkboxSelectedList.forEach((key, value) {
+//            if (value == true) {
+//              _selectedClientList.add(key);
+//            }
+//          });
+    });
 
     mess.on(MyEvent.NewMessage, (arg) {
       if (mounted) {
@@ -55,7 +84,7 @@ class _MessageListState extends State<MessageList> {
         setState(() {
           _showMessageList.add(arg);
           widget.scrollController
-              .jumpTo(widget.scrollController.position.maxScrollExtent + 60);
+              .jumpTo(widget.scrollController.position.maxScrollExtent+ 60);
         });
       }
     });
@@ -71,13 +100,44 @@ class _MessageListState extends State<MessageList> {
         setState(() {
           _showMessageList.add(message);
           widget.scrollController
-              .jumpTo(widget.scrollController.position.maxScrollExtent + 0);
+              .jumpTo(widget.scrollController.position.maxScrollExtent + 60 );
         });
       }
     };
+
+//    监听滚动事件
+//    metrics.extentAfter - widget 底部距离列表底部有多大
+//    metrics.extentBefore - widget 顶部距离列表顶部有多大
+//    metrics.extentInside - widget 范围内的列表长度
+//    metrics.maxScrollExtent - 最大滚动距离，列表长度 - widget 长度
+//    metrics.minScrollExtent - 最小滚动距离
+//    metrics.viewportDimension - widget 长度
+
+    //extentAfter + extentBefore 的确= maxScrollExtent
+    widget.scrollController.addListener(() {
+//      _maxScrollExtent = widget.scrollController.position.maxScrollExtent;
+//      print('-----addListener:' +
+//          widget.scrollController.position.pixels.toString()); //打印滚动位置
+////      _maxScrollExtent = widget.scrollController.position.maxScrollExtent;
+//      print('-----_maxScrollExtent:' + _maxScrollExtent.toString()); //打印滚动位置
+////     double  viewportDimension = widget.scrollController.position.viewportDimension;
+////      print('-----viewportDimension:'+ viewportDimension.toString()); //widget 长度
+//double extentAfter =widget.scrollController.position.extentAfter;
+//      double extentBefore =widget.scrollController.position.extentBefore;
+//      print('-----extentAfter:'+ extentAfter.toString() +'-----extentBefore:'+ extentBefore.toString()); //打印滚动位置
+//      double extentInside =widget.scrollController.position.extentInside;
+//      print('-----extentInside:'+ extentInside.toString()); //打印滚动位置
+    });
   }
 
+
   void _onRefresh() async {
+    _lastpagePosition = _heightMap[_currentPages];
+
+//    print('_lastpagePosition----》' + _lastpagePosition.toString());
+    print('_onRefresh-----_maxScrollExtent-------->--' +
+        _maxScrollExtent.toString());
+
     if (_showMessageList.length == 0) {
       _refreshController.refreshCompleted();
       return;
@@ -91,113 +151,178 @@ class _MessageListState extends State<MessageList> {
             startClosed: false,
             limit: 10,
           );
+      if (messages2.length == 0) {
+        _refreshController.refreshCompleted();
+        return;
+      }
       _oldMessage = messages2.first;
       _showMessageList.insertAll(0, messages2);
-      setState(() {});
     } catch (e) {
       print(e);
     }
+    if(mounted)
+      setState(() {
+      });
     _refreshController.refreshCompleted();
+//    _currentPages++;
+//    _heightMap[_currentPages] = _maxScrollExtent;
+
   }
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
-        child: Container(
-            child: SmartRefresher(
-                enablePullDown: true,
-                header: ClassicHeader(),
-                onRefresh: _onRefresh,
-                controller: _refreshController,
-                child: ListView.builder(
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  controller: widget.scrollController,
-                  itemCount: _showMessageList.length,
-                  itemBuilder: (context, index) {
+    return NotificationListener(
+        onNotification: (ScrollNotification notification) {
+          print("pixels:${notification.metrics.pixels}");
+          print("atEdge:${notification.metrics.atEdge}");
+          print("axis:${notification.metrics.axis}");
+          print("axisDirection:${notification.metrics.axisDirection}");
+          print("extentAfter:${notification.metrics.extentAfter}");
+          print("extentBefore:${notification.metrics.extentBefore}");
+          print("extentInside:${notification.metrics.extentInside}");
+          print("maxScrollExtent:${notification.metrics.maxScrollExtent}");
+          _maxScrollExtent = notification.metrics.maxScrollExtent;
+          print("minScrollExtent:${notification.metrics.minScrollExtent}");
+          print("viewportDimension:${notification.metrics.viewportDimension}");
+          print("outOfRange:${notification.metrics.outOfRange}");
+          print("____________________________________________");
+          return true;
+        },
+        child: Expanded(
+            child: Container(
+                child: SmartRefresher(
+                    enablePullDown: true,
+                    header: CustomHeader(
+//                      completeDuration: Duration(milliseconds: 200),
+                          builder: (context,mode){
+                            Widget body;
+                            if(mode==RefreshStatus.idle){
+                              body = Text("pull down refresh");
+                            }
+                            else if(mode==RefreshStatus.refreshing){
+                              body = CupertinoActivityIndicator();
+                            }
+                            else if(mode==RefreshStatus.canRefresh){
+//                              body = Text("release to refresh");
+                              body = CupertinoActivityIndicator();
+
+                            }
+                            else if(mode==RefreshStatus.completed){
+//                              body = Text("refreshCompleted!");
+//                              widget.scrollController.animateTo(680,
+//                                  duration: Duration(milliseconds: 500),
+//                                  curve: Curves.ease
+//                              );
+                              widget.scrollController.jumpTo(680,
+                              );
+                            }
+                            return Container(
+                              height: 60.0,
+                              child: Center(
+                                child: body,
+                              ),
+                            );
+                          },
+
+                    ),
+                    onRefresh: _onRefresh,
+                    controller: _refreshController,
+                    child: ListView.builder(
+                      shrinkWrap: true,
+
+//                  addAutomaticKeepAlives: false,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      controller: widget.scrollController,
+                      itemCount: _showMessageList.length,
+                      itemBuilder: (context, index) {
+
 //                    if (_showMessageList.length == 0) {
 //                      return Text('还没有消息');
 //                    } else {
-                    Message message = _showMessageList[index];
-                    String fromClientID = message.fromClientID;
-                    // string time = message.sentDate;//
+                        Message message = _showMessageList[index];
+                        String fromClientID = message.fromClientID;
+                        // string time = message.sentDate;//
 //                  var conNew = ChangeNotifierProvider.of<ConversationModel>(context);
-                    _isMessagePositionLest = false;
+                        _isMessagePositionLest = false;
 
-                    if (fromClientID != currentClint.client.id) {
-                      _isMessagePositionLest = true;
-                    }
-                    return Container(
+                        if (fromClientID != currentClint.client.id) {
+                          _isMessagePositionLest = true;
+                        }
+                        return Container(
 //                    color: Color(0xfff5f5f5),
-                      padding: const EdgeInsets.all(5),
-                      child: Row(
-                        children: <Widget>[
-                          new Expanded(
-                            child: new Column(
-                              crossAxisAlignment: _isMessagePositionLest
-                                  ? CrossAxisAlignment.start
-                                  : CrossAxisAlignment.end,
-                              children: [
-                                new Container(
-                                  padding:
-                                      const EdgeInsets.only(right: 8, left: 8),
-                                  child: new Text(
-                                    fromClientID,
-                                    style: new TextStyle(
-                                      fontWeight: FontWeight.normal,
+                          padding: const EdgeInsets.all(5),
+                          child: Row(
+                            children: <Widget>[
+                              new Expanded(
+                                child: new Column(
+                                  crossAxisAlignment: _isMessagePositionLest
+                                      ? CrossAxisAlignment.start
+                                      : CrossAxisAlignment.end,
+                                  children: [
+                                    new Container(
+                                      padding: const EdgeInsets.only(
+                                          right: 8, left: 8),
+                                      child: new Text(
+                                        fromClientID,
+                                        style: new TextStyle(
+                                          fontWeight: FontWeight.normal,
+                                        ),
+                                      ),
                                     ),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.all(2.0),
-                                  child: Flex(
-                                    direction: Axis.horizontal,
-                                    mainAxisAlignment: _isMessagePositionLest
-                                        ? MainAxisAlignment.start
-                                        : MainAxisAlignment.end,
-                                    children: <Widget>[
-                                      Container(
-                                          padding: const EdgeInsets.all(8.0),
-                                          constraints: BoxConstraints(
-                                            maxWidth: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.7,
-                                          ),
-                                          decoration: _isMessagePositionLest
-                                              ? BoxDecoration(
-                                                  color: Colors.blue,
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(12.0),
-                                                  ),
-                                                )
-                                              : BoxDecoration(
-                                                  color: Colors.grey[300],
-                                                  borderRadius:
-                                                      BorderRadius.all(
-                                                    Radius.circular(12.0),
-                                                  ),
-                                                ),
-                                          child: new Text(
-                                            getMessageString(message),
+                                    Padding(
+                                      padding: const EdgeInsets.all(2.0),
+                                      child: Flex(
+                                        direction: Axis.horizontal,
+                                        mainAxisAlignment:
+                                            _isMessagePositionLest
+                                                ? MainAxisAlignment.start
+                                                : MainAxisAlignment.end,
+                                        children: <Widget>[
+                                          Container(
+                                              padding:
+                                                  const EdgeInsets.all(8.0),
+                                              constraints: BoxConstraints(
+                                                maxWidth: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.7,
+                                              ),
+                                              decoration: _isMessagePositionLest
+                                                  ? BoxDecoration(
+                                                      color: Colors.blue,
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(12.0),
+                                                      ),
+                                                    )
+                                                  : BoxDecoration(
+                                                      color: Colors.grey[300],
+                                                      borderRadius:
+                                                          BorderRadius.all(
+                                                        Radius.circular(12.0),
+                                                      ),
+                                                    ),
+                                              child: new Text(
+                                                getMessageString(message),
 //                                          'Run `aqueduct serve` from this directory to run the application',
-                                            style: new TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: _isMessagePositionLest
-                                                    ? Colors.white
-                                                    : Colors.blue),
-                                          ))
-                                    ],
-                                  ),
-                                )
-                              ],
-                            ),
+                                                style: new TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                    color:
+                                                        _isMessagePositionLest
+                                                            ? Colors.white
+                                                            : Colors.blue),
+                                              ))
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
-                      ),
-                    );
-                  },
-                ))));
+                        );
+                      },
+                    )))));
   }
 
 //  时间显示规则：
@@ -243,6 +368,7 @@ class _MessageListState extends State<MessageList> {
   @override
   void dispose() {
     super.dispose();
+//    widget.scrollController.dispose();
 
     //取消订阅
     mess.off(

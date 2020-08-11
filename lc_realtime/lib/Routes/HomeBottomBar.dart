@@ -68,20 +68,20 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
     );
   }
 
-  Align navRightButton(BuildContext context) {
-    Align content;
-    content = Align(
-      alignment: Alignment.center,
-      child: Padding(
-        padding: EdgeInsets.only(top: 0.0),
-        child: IconButton(
-            icon: Icon(Icons.directions_run),
-            onPressed: () {
-              showConfirmDialog();
-            }),
-      ),
-    );
-    return content;
+    Align navRightButton(BuildContext context) {
+      Align content;
+      content = Align(
+        alignment: Alignment.center,
+        child: Padding(
+          padding: EdgeInsets.only(top: 0.0),
+          child: IconButton(
+              icon: Icon(Icons.directions_run),
+              onPressed: () {
+                showConfirmDialog();
+              }),
+        ),
+      );
+      return content;
   }
 
   Align navLeftButton(BuildContext context) {
