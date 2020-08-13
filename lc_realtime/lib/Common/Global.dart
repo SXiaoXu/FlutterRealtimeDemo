@@ -124,7 +124,7 @@ class CommonUtil {
   }
 }
 
-enum MyEvent { NewMessage, ScrollviewDidScroll }
+enum MyEvent { NewMessage, ScrollviewDidScroll, EditingMessage}
 
 class Global {
   static SharedPreferences _prefs;

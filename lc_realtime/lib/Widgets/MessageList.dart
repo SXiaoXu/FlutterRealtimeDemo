@@ -64,20 +64,32 @@ class _MessageListState extends State<MessageList> {
       _scrollToIndex(10);
     }
 
+    //监听自己发送了新消息
     mess.on(MyEvent.NewMessage, (arg) {
-      double textHeight = calculateTextHeight(getMessageString(arg),14.0,FontWeight.bold,_textMessageMaxWidth -16 ,100)+16;
+      double textHeight = calculateTextHeight(getMessageString(arg), 14.0,
+              FontWeight.bold, _textMessageMaxWidth - 16, 100) +
+          16;
 
       if (mounted) {
         print('我发送了新消息' + getMessageString(arg));
         setState(() {
           _showMessageList.add(arg);
-          _autoScrollController
-              .jumpTo(_autoScrollController.position.maxScrollExtent + textHeight + 30);
-
+          _autoScrollController.jumpTo(
+              _autoScrollController.position.maxScrollExtent + textHeight + 30);
         });
       }
     });
-
+//    //监听正在编辑消息
+//    mess.on(MyEvent.EditingMessage, (arg) {
+//      _autoScrollController
+//          .jumpTo(_autoScrollController.position.maxScrollExtent);
+//    });
+    //监听滚动
+    _autoScrollController.addListener(() {
+      //通知收起键盘
+      mess.emit(MyEvent.ScrollviewDidScroll);
+    });
+    //收到新消息
     currentClint = CurrentClient();
     currentClint.client.onMessage = ({
       Client client,
@@ -85,14 +97,14 @@ class _MessageListState extends State<MessageList> {
       Message message,
     }) {
       if (message != null) {
-        double textHeight = calculateTextHeight(getMessageString(message),14.0,FontWeight.bold,_textMessageMaxWidth -16 ,100)+16;
-
+        double textHeight = calculateTextHeight(getMessageString(message), 14.0,
+                FontWeight.bold, _textMessageMaxWidth - 16, 100) +
+            16;
         print('收到的消息是：${getMessageString(message)}');
-
         setState(() {
           _showMessageList.add(message);
-          _autoScrollController
-              .jumpTo(_autoScrollController.position.maxScrollExtent + textHeight + 30);
+          _autoScrollController.jumpTo(
+              _autoScrollController.position.maxScrollExtent + textHeight + 30);
         });
       }
     };
@@ -140,129 +152,142 @@ class _MessageListState extends State<MessageList> {
   @override
   Widget build(BuildContext context) {
     return Expanded(
-        child: Container(
-            child: SmartRefresher(
-                enablePullDown: true,
-                header: CustomHeader(
+        child: GestureDetector(
+            //点击页面通知收起键盘
+            onTap: () => mess.emit(MyEvent.ScrollviewDidScroll),
+            onDoubleTap: () => mess.emit(MyEvent.ScrollviewDidScroll),
+            child: Container(
+                child: SmartRefresher(
+                    enablePullDown: true,
+                    header: CustomHeader(
 //                      completeDuration: Duration(milliseconds: 200),
-                  builder: (context, mode) {
-                    Widget body;
-                    if (mode == RefreshStatus.idle) {
-                      body = Text("pull down refresh");
-                    } else if (mode == RefreshStatus.refreshing) {
-                      body = CupertinoActivityIndicator();
-                    } else if (mode == RefreshStatus.canRefresh) {
+                      builder: (context, mode) {
+                        Widget body;
+                        if (mode == RefreshStatus.idle) {
+                          body = Text("pull down refresh");
+                        } else if (mode == RefreshStatus.refreshing) {
+                          body = CupertinoActivityIndicator();
+                        } else if (mode == RefreshStatus.canRefresh) {
 //                              body = Text("release to refresh");
-                      body = CupertinoActivityIndicator();
-                    } else if (mode == RefreshStatus.completed) {
+                          body = CupertinoActivityIndicator();
+                        } else if (mode == RefreshStatus.completed) {
 //                              body = Text("refreshCompleted!");
-                      if (_isNeedScrollToNewPage) {
-                        _lastPageLength != 0
-                            ? _scrollToIndex(_lastPageLength)
-                            : _scrollToIndex(10);
-                      }
-                    }
-                    return Container(
-                      height: 60.0,
-                      child: Center(
-                        child: body,
-                      ),
-                    );
-                  },
-                ),
-                onRefresh: _onRefresh,
-                controller: _refreshController,
-                child: ListView.builder(
-                  //根据子组件的总长度来设置ListView的长度
-                  shrinkWrap: true,
-                  physics: const AlwaysScrollableScrollPhysics(),
-                  controller: _autoScrollController,
-                  itemCount: _showMessageList.length,
-                  itemBuilder: (context, index) {
-                    _textMessageMaxWidth =
-                        MediaQuery.of(context).size.width * 0.7;
-                    Message message = _showMessageList[index];
-                    String fromClientID = message.fromClientID;
-                    // string time = message.sentDate;//
-                    _isMessagePositionLeft = false;
-                    if (fromClientID != currentClint.client.id) {
-                      _isMessagePositionLeft = true;
-                    }
-                    return AutoScrollTag(
-                        key: ValueKey(index),
-                        controller: _autoScrollController,
-                        index: index,
-                        child: Container(
-//                    color: Color(0xfff5f5f5),
-                          padding: const EdgeInsets.all(5),
-                          child: Row(
-                            children: <Widget>[
-                              new Expanded(
-                                child: new Column(
-                                  crossAxisAlignment: _isMessagePositionLeft
-                                      ? CrossAxisAlignment.start
-                                      : CrossAxisAlignment.end,
-                                  children: [
-                                    new Container(
-                                      padding: const EdgeInsets.only(
-                                          right: 8, left: 8),
-                                      child: new Text(
-                                        fromClientID,
-                                        style: new TextStyle(
-                                          fontWeight: FontWeight.normal,
-                                        ),
-                                      ),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(2.0),
-                                      child: Flex(
-                                        direction: Axis.horizontal,
-                                        mainAxisAlignment:
-                                            _isMessagePositionLeft
-                                                ? MainAxisAlignment.start
-                                                : MainAxisAlignment.end,
-                                        children: <Widget>[
-                                          Container(
-                                              padding:
-                                                  const EdgeInsets.all(8.0),
-                                              constraints: BoxConstraints(
-                                                maxWidth: _textMessageMaxWidth,
-                                              ),
-                                              decoration: _isMessagePositionLeft
-                                                  ? BoxDecoration(
-                                                      color: Colors.blue,
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(12.0),
-                                                      ),
-                                                    )
-                                                  : BoxDecoration(
-                                                      color: Colors.grey[300],
-                                                      borderRadius:
-                                                          BorderRadius.all(
-                                                        Radius.circular(12.0),
-                                                      ),
-                                                    ),
-                                              child: new Text(
-                                                getMessageString(message),
-                                                style: new TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        _isMessagePositionLeft
-                                                            ? Colors.white
-                                                            : Colors.blue),
-                                              ))
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ],
+                          if (_isNeedScrollToNewPage) {
+                            _lastPageLength != 0
+                                ? _scrollToIndex(_lastPageLength)
+                                : _scrollToIndex(10);
+                          }
+                        }
+                        return Container(
+                          height: 60.0,
+                          child: Center(
+                            child: body,
                           ),
-                        ));
-                  },
-                ))));
+                        );
+                      },
+                    ),
+                    onRefresh: _onRefresh,
+                    controller: _refreshController,
+                    child: ListView.builder(
+                      //根据子组件的总长度来设置ListView的长度
+                      shrinkWrap: true,
+                      physics: const AlwaysScrollableScrollPhysics(),
+                      controller: _autoScrollController,
+                      itemCount: _showMessageList.length,
+                      itemBuilder: (context, index) {
+                        _textMessageMaxWidth =
+                            MediaQuery.of(context).size.width * 0.7;
+                        Message message = _showMessageList[index];
+                        String fromClientID = message.fromClientID;
+                        // string time = message.sentDate;//
+                        _isMessagePositionLeft = false;
+                        if (fromClientID != currentClint.client.id) {
+                          _isMessagePositionLeft = true;
+                        }
+                        return AutoScrollTag(
+                            key: ValueKey(index),
+                            controller: _autoScrollController,
+                            index: index,
+                            child: Container(
+//                    color: Color(0xfff5f5f5),
+                              padding: const EdgeInsets.all(5),
+                              child: Row(
+                                children: <Widget>[
+                                  new Expanded(
+                                    child: new Column(
+                                      crossAxisAlignment: _isMessagePositionLeft
+                                          ? CrossAxisAlignment.start
+                                          : CrossAxisAlignment.end,
+                                      children: [
+                                        new Container(
+                                          padding: const EdgeInsets.only(
+                                              right: 8, left: 8),
+                                          child: new Text(
+                                            fromClientID,
+                                            style: new TextStyle(
+                                              fontWeight: FontWeight.normal,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.all(2.0),
+                                          child: Flex(
+                                            direction: Axis.horizontal,
+                                            mainAxisAlignment:
+                                                _isMessagePositionLeft
+                                                    ? MainAxisAlignment.start
+                                                    : MainAxisAlignment.end,
+                                            children: <Widget>[
+                                              Container(
+                                                  padding:
+                                                      const EdgeInsets.all(8.0),
+                                                  constraints: BoxConstraints(
+                                                    maxWidth:
+                                                        _textMessageMaxWidth,
+                                                  ),
+                                                  decoration:
+                                                      _isMessagePositionLeft
+                                                          ? BoxDecoration(
+                                                              color:
+                                                                  Colors.blue,
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(
+                                                                Radius.circular(
+                                                                    12.0),
+                                                              ),
+                                                            )
+                                                          : BoxDecoration(
+                                                              color: Colors
+                                                                  .grey[300],
+                                                              borderRadius:
+                                                                  BorderRadius
+                                                                      .all(
+                                                                Radius.circular(
+                                                                    12.0),
+                                                              ),
+                                                            ),
+                                                  child: new Text(
+                                                    getMessageString(message),
+                                                    style: new TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color:
+                                                            _isMessagePositionLeft
+                                                                ? Colors.white
+                                                                : Colors.blue),
+                                                  ))
+                                            ],
+                                          ),
+                                        )
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ));
+                      },
+                    )))));
   }
 
 //  时间显示规则：
@@ -329,8 +354,7 @@ class _MessageListState extends State<MessageList> {
     super.dispose();
 
     //取消订阅
-    mess.off(
-      MyEvent.NewMessage,
-    );
+    mess.off(MyEvent.NewMessage);
+//    mess.off(MyEvent.EditingMessage);
   }
 }
