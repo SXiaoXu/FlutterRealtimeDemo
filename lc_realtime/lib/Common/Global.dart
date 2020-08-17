@@ -1,7 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
+import 'package:leancloud_storage/leancloud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+enum MyEvent { NewMessage, ScrollviewDidScroll, ImageMessageHeight }
+
+//TextMessage 文本消息
+//ImageMessage 图像消息
+//AudioMessage 音频消息
+//VideoMessage 视频消息
+//FileMessage 普通文件消息（.txt/.doc/.md 等各种）
+//LocationMessage 地理位置消息
+
+enum MyMessageType {
+  TextMessage,
+  ImageMessage,
+  AudioMessage,
+  VideoMessage,
+  FileMessage,
+  LocationMessage
+}
 
 void showToastRed(String msg) {
   Fluttertoast.showToast(
@@ -124,8 +143,6 @@ class CommonUtil {
   }
 }
 
-enum MyEvent { NewMessage, ScrollviewDidScroll, EditingMessage}
-
 class Global {
   static SharedPreferences _prefs;
   static String clientID;
@@ -142,6 +159,10 @@ class Global {
         print(e);
       }
     }
+    LeanCloud.initialize(
+        '1eUivazFXYwJvuGpPl2LE4uY-gzGzoHsz', 'nLMIaQSwIsHfF206PnOFoYYa',
+        server: 'https://1euivazf.lc-cn-n1-shared.com',
+        queryCache: new LCQueryCache());
   }
 
   static saveClientID(String id) {

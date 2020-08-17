@@ -1,28 +1,34 @@
+import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lcrealtime/Common/Global.dart';
-import 'package:lcrealtime/States/ConversationModel.dart';
 import 'package:lcrealtime/States/GlobalEvent.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
-import 'package:lcrealtime/States/ChangeNotifierProvider.dart';
+import 'package:leancloud_storage/leancloud.dart';
 
 class InputMessageView extends StatefulWidget {
   final Conversation conversation;
-  InputMessageView(
-      {Key key,
-      @required
-//      this.scrollController,
-          this.conversation})
-      : super(key: key);
-
+  InputMessageView({Key key, @required this.conversation}) : super(key: key);
   @override
   _InputMessageViewState createState() => new _InputMessageViewState();
 }
 
 class _InputMessageViewState extends State<InputMessageView> {
   TextEditingController _messController = new TextEditingController();
-  GlobalKey _formKey = new GlobalKey<FormState>();
-  bool _canSend = false;
+  final ImagePicker _imagePicker = ImagePicker();
+  PickedFile _pickedFile;
+
   FocusNode myFocusNode;
+  bool _isShowImageGridView = false;
+  bool _isShowVoiceIcon = true;
+  IconData _voiceOrTextIcon;
+  List _icons = [
+    {'name': '照片', 'icon': Icons.photo_library},
+    {'name': '拍摄', 'icon': Icons.photo_camera},
+    //可以继续添加更多 icons
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -30,20 +36,19 @@ class _InputMessageViewState extends State<InputMessageView> {
     myFocusNode = FocusNode();
     mess.on(MyEvent.ScrollviewDidScroll, (arg) {
       myFocusNode.unfocus(); // 失去焦点
-//      FocusScope.of(context).requestFocus(myFocusNode);     // 获取焦点
     });
-    // 监听焦点变化，获得焦点时focusNode.hasFocus 值为true，失去焦点时为false。
     myFocusNode.addListener(() {
-//      if (myFocusNode.hasFocus) {
-//        //列表滚动到底部
-//        mess.emit(MyEvent.EditingMessage);
-//      }
+      if (myFocusNode.hasFocus) {
+        setState(() {
+          _isShowImageGridView = false;
+        });
+      }
     });
+    _voiceOrTextIcon = Icons.keyboard_voice;
   }
 
   @override
   void dispose() {
-    // Clean up the focus node when the Form is disposed.
     myFocusNode.dispose();
     super.dispose();
     //取消订阅
@@ -54,32 +59,197 @@ class _InputMessageViewState extends State<InputMessageView> {
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: Container(
-//            padding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-            color: Colors.white,
-            child: TextFormField(
-//              autofocus: true,
-              focusNode: myFocusNode,
-              controller: _messController,
-              onChanged: validateInput,
-              decoration: InputDecoration(
-                  suffixIcon: IconButton(
-                icon: Icon(Icons.send,
-                    color: _canSend ? Colors.blue : Colors.grey),
-                onPressed: sendMessage,
-              )),
-            )));
+    return Container(
+      margin: const EdgeInsets.only(top: 30),
+      child: Column(children: <Widget>[
+        Container(
+          child: buildTextField(),
+          decoration: BoxDecoration(color: Color.fromRGBO(241, 243, 244, 0.9)),
+        ),
+        buildImageGridView()
+      ]),
+    );
   }
 
-  void validateInput(String test) {
+  Widget buildImageGridView() {
+    if (_isShowImageGridView) {
+      return Container(
+        decoration: BoxDecoration(color: Color.fromRGBO(241, 243, 244, 0.9)),
+        child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 4,
+                crossAxisSpacing: 10.0,
+                mainAxisSpacing: 10.0,
+                childAspectRatio: 0.8),
+            padding:
+                const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+            scrollDirection: Axis.vertical,
+            itemCount: _icons.length,
+            itemBuilder: (BuildContext context, int index) {
+              return _buildIconButton(
+                  _icons[index]['name'], _icons[index]['icon']);
+            }),
+        height: 200,
+      );
+    } else {
+      return Container(
+        height: 0,
+      );
+    }
+  }
+
+  Widget _buildIconButton(String name, IconData icon) {
+    return Column(
+      children: <Widget>[
+        GestureDetector(
+          excludeFromSemantics: true,
+          onTap: () {
+            if (name == '照片') {
+              _onImageButtonPressed(ImageSource.gallery, context: context);
+            } else if (name == '拍摄') {
+              _onImageButtonPressed(ImageSource.camera, context: context);
+            }
+          },
+          child: Container(
+            width: 60.0,
+            height: 60.0,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+                color: Colors.white, borderRadius: BorderRadius.circular(10.0)),
+            child: Icon(
+              icon,
+              size: 28.0,
+            ),
+          ),
+        ),
+        Container(
+            margin: EdgeInsets.only(top: 3.0),
+            child: Text(name,
+                style: TextStyle(fontSize: 12.0, color: Colors.grey[600])))
+      ],
+    );
+  }
+
+  Widget buildTextField() {
+    return Container(
+      alignment: Alignment.center,
+      child: Row(
+        children: <Widget>[
+          Container(
+            child: IconButton(
+                onPressed: _isShowVoiceIcon
+                    ? voiceButtonPressed
+                    : keyboardButtonPressed,
+                iconSize: 22.0,
+                highlightColor: Color(00000000),
+                focusColor: Color(00000000),
+                hoverColor: Color(00000000),
+                icon: Icon(
+                  _voiceOrTextIcon,
+                  //                  color: Colors.grey,
+                )),
+          ),
+          Container(child: voiceOrTextView()),
+          Container(
+            child: IconButton(
+                onPressed: showImageGirdView,
+                iconSize: 22.0,
+                highlightColor: Color(00000000),
+                focusColor: Color(00000000),
+                hoverColor: Color(00000000),
+                icon: Icon(
+                  Icons.add,
+                  //                  color: Colors.grey,
+                )),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget voiceOrTextView() {
+    return Flexible(
+      child: Container(
+        margin: const EdgeInsets.only(top: 2, bottom: 2),
+        child: TextField(
+          textInputAction: TextInputAction.send,
+          controller: _messController,
+          focusNode: myFocusNode,
+          onEditingComplete: () {
+            sendTextMessage();
+          },
+        ),
+      ),
+    );
+  }
+
+  void sendVoiceMessage() async {}
+
+  void voiceButtonPressed() {
     setState(() {
-      _canSend = test.length > 0;
+      _isShowImageGridView = false;
+      _isShowVoiceIcon = false;
+      _voiceOrTextIcon = Icons.keyboard;
+    });
+    if (myFocusNode.hasFocus) {
+      myFocusNode.unfocus();
+    }
+  }
+
+  void keyboardButtonPressed() {
+    setState(() {
+      _isShowImageGridView = false;
+      _isShowVoiceIcon = true;
+      _voiceOrTextIcon = Icons.keyboard_voice;
+    });
+    if (!myFocusNode.hasFocus) {
+      myFocusNode.requestFocus();
+    }
+  }
+
+  // 点击加号
+  void showImageGirdView() {
+    // 监听焦点变化，获得焦点时focusNode.hasFocus 值为true，失去焦点时为false。
+    if (myFocusNode.hasFocus) {
+      myFocusNode.unfocus();
+    }
+    setState(() {
+      _isShowImageGridView = !_isShowImageGridView;
+      //      _isShowVoice = false;
     });
   }
 
-  Future sendMessage() async {
+  //发消息
+//    void sendMessage(MyMessageType type) {
+//      switch (type.index) {
+//        case 0:
+//          //TextMessage 文本消息
+//
+//          break;
+//        case 1:
+//          //ImageMessage 图像消息
+//        sendImageMessage();
+//          break;
+//        case 2:
+//          //AudioMessage 音频消息
+//          break;
+//        case 3:
+//          //VideoMessage 视频消息
+//          break;
+//        case 4:
+//          //FileMessage 普通文件消息（.txt/.doc/.md 等各种）
+//          break;
+//        case 5:
+//          //LocationMessage 地理位置消息
+//          break;
+//        default:
+//          {
+//            showToastRed('消息类型错误！');
+//          }
+//          break;
+//      }
+//    }
+  void sendTextMessage() async {
     if (_messController.text != null && _messController.text != '') {
       try {
         TextMessage textMessage = TextMessage();
@@ -88,8 +258,7 @@ class _InputMessageViewState extends State<InputMessageView> {
         showToastGreen('发送成功');
         mess.emit(MyEvent.NewMessage, textMessage);
         _messController.clear();
-        FocusScope.of(context).requestFocus(FocusNode());
-        _canSend = false;
+        myFocusNode.unfocus();
       } catch (e) {
         showToastRed(e.toString());
         print(e.toString());
@@ -97,6 +266,55 @@ class _InputMessageViewState extends State<InputMessageView> {
     } else {
       showToastRed('未输入消息内容');
       return;
+    }
+  }
+
+  //发送图片消息
+  void _onImageButtonPressed(ImageSource source, {BuildContext context}) async {
+    final _imageFile = await _imagePicker.getImage(
+      source: source,
+      maxWidth: MediaQuery.of(context).size.width * 0.4,
+      maxHeight: MediaQuery.of(context).size.width * 0.6,
+      imageQuality: 70,
+    );
+    Uint8List bytes = await _imageFile.readAsBytes();
+    LCFile file = LCFile.fromBytes('imageMessage.png', bytes);
+    await file.save(onProgress: (int count, int total) {
+      print('$count/$total');
+      if (count == total) {
+        //记录图片的宽高，用户底部插入一条新消息
+//        Image image = Image.file(File(_imageFile.path));
+//        // 预先获取图片信息
+//        int imageHeight;
+//        image.image
+//            .resolve(new ImageConfiguration())
+//            .addListener(new ImageStreamListener((ImageInfo info, bool _) {
+//          imageHeight = info.image.height;
+//        }));
+        //发消息
+        sendImageMessage(file.data);
+      }
+    });
+  }
+
+  void sendImageMessage(Uint8List binaryData) async {
+    //上传完成
+    try {
+      ImageMessage imageMessage = ImageMessage.from(binaryData: binaryData);
+      await this.widget.conversation.send(message: imageMessage);
+
+      showToastGreen('发送成功 url:' + imageMessage.url);
+      print('发送成功 url:' + imageMessage.url);
+      mess.emit(MyEvent.NewMessage, imageMessage);
+//      mess.emit(MyEvent.ImageMessageHeight, height);
+      setState(() {
+        _messController.clear();
+        myFocusNode.unfocus();
+        _isShowImageGridView = false;
+      });
+    } catch (e) {
+      showToastRed(e.toString());
+      print(e.toString());
     }
   }
 }

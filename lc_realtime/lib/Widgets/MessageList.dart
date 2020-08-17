@@ -1,28 +1,24 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
-import 'package:lcrealtime/States/ConversationModel.dart';
 import 'package:lcrealtime/States/GlobalEvent.dart';
+import 'package:lcrealtime/Widgets/ImageWidget.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
-import 'package:lcrealtime/Common/Global.dart';
-
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 class MessageList extends StatefulWidget {
-//  final ScrollController scrollController;
   final Conversation conversation;
   final List<Message> firstPageMessages;
   final Message firstMessage;
 
   MessageList(
       {Key key,
-      @required
-//      this.scrollController,
-          this.conversation,
+      @required this.conversation,
       this.firstPageMessages,
       this.firstMessage})
       : super(key: key);
@@ -35,12 +31,12 @@ class _MessageListState extends State<MessageList> {
   double _textMessageMaxWidth;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
-//  ItemScrollController _scrollController = ItemScrollController();
   AutoScrollController _autoScrollController;
 
   List<Message> _showMessageList;
   bool _isMessagePositionLeft = false;
   CurrentClient currentClint;
+  final double newImageMessageHeight = 100;
 
   //翻页位置的第一条消息
   Message _oldMessage;
@@ -63,32 +59,19 @@ class _MessageListState extends State<MessageList> {
     if (_showMessageList.length >= 10) {
       _scrollToIndex(10);
     }
-
-    //监听自己发送了新消息
-    mess.on(MyEvent.NewMessage, (arg) {
-      double textHeight = calculateTextHeight(getMessageString(arg), 14.0,
-              FontWeight.bold, _textMessageMaxWidth - 16, 100) +
-          16;
-
-      if (mounted) {
-        print('我发送了新消息' + getMessageString(arg));
-        setState(() {
-          _showMessageList.add(arg);
-          _autoScrollController.jumpTo(
-              _autoScrollController.position.maxScrollExtent + textHeight + 30);
-        });
-      }
-    });
-//    //监听正在编辑消息
-//    mess.on(MyEvent.EditingMessage, (arg) {
-//      _autoScrollController
-//          .jumpTo(_autoScrollController.position.maxScrollExtent);
-//    });
     //监听滚动
     _autoScrollController.addListener(() {
       //通知收起键盘
       mess.emit(MyEvent.ScrollviewDidScroll);
     });
+
+    //监听自己发送了新消息
+    mess.on(MyEvent.NewMessage, (arg) {
+      if (arg != null) {
+        receiveNewMessage(arg);
+      }
+    });
+
     //收到新消息
     currentClint = CurrentClient();
     currentClint.client.onMessage = ({
@@ -97,17 +80,36 @@ class _MessageListState extends State<MessageList> {
       Message message,
     }) {
       if (message != null) {
-        double textHeight = calculateTextHeight(getMessageString(message), 14.0,
-                FontWeight.bold, _textMessageMaxWidth - 16, 100) +
-            16;
-        print('收到的消息是：${getMessageString(message)}');
-        setState(() {
-          _showMessageList.add(message);
-          _autoScrollController.jumpTo(
-              _autoScrollController.position.maxScrollExtent + textHeight + 30);
-        });
+        receiveNewMessage(message);
       }
     };
+    //监听正在编辑消息
+//    mess.on(MyEvent.EditingMessage, (arg) {
+//      _autoScrollController
+//          .jumpTo(_autoScrollController.position.maxScrollExtent);
+//    });
+  }
+
+  void receiveNewMessage(Message message) {
+    double height;
+//    mess.on(MyEvent.ImageMessageHeight, (arg) {
+////      height = arg;
+//    });
+    if (message is TextMessage) {
+      height = calculateTextHeight(getMessageString(message), 14.0,
+              FontWeight.bold, _textMessageMaxWidth - 16, 100) +
+          16 +
+          30;
+    }
+    if (message is ImageMessage) {
+      height = newImageMessageHeight + 40;
+    }
+    setState(() {
+      _showMessageList.add(message);
+      _scrollToIndex(_showMessageList.length);
+//      _autoScrollController
+//          .jumpTo(_autoScrollController.position.maxScrollExtent );
+    });
   }
 
   Future _scrollToIndex(int index) async {
@@ -198,6 +200,7 @@ class _MessageListState extends State<MessageList> {
                         _textMessageMaxWidth =
                             MediaQuery.of(context).size.width * 0.7;
                         Message message = _showMessageList[index];
+
                         String fromClientID = message.fromClientID;
                         // string time = message.sentDate;//
                         _isMessagePositionLeft = false;
@@ -238,45 +241,7 @@ class _MessageListState extends State<MessageList> {
                                                     ? MainAxisAlignment.start
                                                     : MainAxisAlignment.end,
                                             children: <Widget>[
-                                              Container(
-                                                  padding:
-                                                      const EdgeInsets.all(8.0),
-                                                  constraints: BoxConstraints(
-                                                    maxWidth:
-                                                        _textMessageMaxWidth,
-                                                  ),
-                                                  decoration:
-                                                      _isMessagePositionLeft
-                                                          ? BoxDecoration(
-                                                              color:
-                                                                  Colors.blue,
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(
-                                                                Radius.circular(
-                                                                    12.0),
-                                                              ),
-                                                            )
-                                                          : BoxDecoration(
-                                                              color: Colors
-                                                                  .grey[300],
-                                                              borderRadius:
-                                                                  BorderRadius
-                                                                      .all(
-                                                                Radius.circular(
-                                                                    12.0),
-                                                              ),
-                                                            ),
-                                                  child: new Text(
-                                                    getMessageString(message),
-                                                    style: new TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        color:
-                                                            _isMessagePositionLeft
-                                                                ? Colors.white
-                                                                : Colors.blue),
-                                                  ))
+                                              typeMessageView(message),
                                             ],
                                           ),
                                         )
@@ -288,6 +253,48 @@ class _MessageListState extends State<MessageList> {
                             ));
                       },
                     )))));
+  }
+
+  //展示不同的消息类型
+  Widget typeMessageView(Message message) {
+    if (message is TextMessage) {
+      return Container(
+          padding: const EdgeInsets.all(8.0),
+          constraints: BoxConstraints(
+            maxWidth: _textMessageMaxWidth,
+          ),
+          decoration: _isMessagePositionLeft
+              ? BoxDecoration(
+                  color: Colors.blue,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                )
+              : BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(12.0),
+                  ),
+                ),
+          child: new Text(
+            getMessageString(message),
+            style: new TextStyle(
+                fontWeight: FontWeight.bold,
+                color: _isMessagePositionLeft ? Colors.white : Colors.blue),
+          ));
+    } else if (message is FileMessage) {
+      if (message is ImageMessage) {
+        return Container(
+            constraints: BoxConstraints(
+              maxWidth: MediaQuery.of(context).size.width * 0.4,
+            ),
+            child: ImageWidget(
+                url: message.url,
+                width: MediaQuery.of(context).size.width * 0.4));
+      } else if (message is AudioMessage) {}
+    } else {
+      return Text('暂未支持的消息类型。。。');
+    }
   }
 
 //  时间显示规则：
@@ -355,6 +362,8 @@ class _MessageListState extends State<MessageList> {
 
     //取消订阅
     mess.off(MyEvent.NewMessage);
+    mess.off(MyEvent.ImageMessageHeight);
+
 //    mess.off(MyEvent.EditingMessage);
   }
 }
