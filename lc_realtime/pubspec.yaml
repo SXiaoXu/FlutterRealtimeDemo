@@ -32,6 +32,7 @@ dependencies:
   scroll_to_index: ^1.0.6
   flutter_plugin_record: ^0.2.1
   image_picker: ^0.6.7+4
+  cached_network_image: ^2.2.0+1
   video_player: ^0.10.11+2
   flutter_localizations:
     sdk: flutter

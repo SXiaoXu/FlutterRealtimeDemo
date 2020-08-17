@@ -277,36 +277,40 @@ class _InputMessageViewState extends State<InputMessageView> {
       maxHeight: MediaQuery.of(context).size.width * 0.6,
       imageQuality: 70,
     );
+    Image image = Image.file(File(_imageFile.path));
+//     预先获取图片信息
+    double imageHeight = 250;
+    image.image
+        .resolve(new ImageConfiguration())
+        .addListener(new ImageStreamListener((ImageInfo info, bool _) {
+      //图片的宽高 info.image.height
+      print('image.height:---->' + info.image.height.toString());
+      print('image.width:---->' + info.image.width.toString());
+      imageHeight = info.image.height.toDouble();
+    }));
     Uint8List bytes = await _imageFile.readAsBytes();
     LCFile file = LCFile.fromBytes('imageMessage.png', bytes);
+
     await file.save(onProgress: (int count, int total) {
       print('$count/$total');
       if (count == total) {
-        //记录图片的宽高，用户底部插入一条新消息
-//        Image image = Image.file(File(_imageFile.path));
-//        // 预先获取图片信息
-//        int imageHeight;
-//        image.image
-//            .resolve(new ImageConfiguration())
-//            .addListener(new ImageStreamListener((ImageInfo info, bool _) {
-//          imageHeight = info.image.height;
-//        }));
         //发消息
-        sendImageMessage(file.data);
+        sendImageMessage(file.data,imageHeight);
       }
     });
   }
 
-  void sendImageMessage(Uint8List binaryData) async {
+  void sendImageMessage(Uint8List binaryData,double imageHeight) async {
     //上传完成
     try {
       ImageMessage imageMessage = ImageMessage.from(binaryData: binaryData);
       await this.widget.conversation.send(message: imageMessage);
-
       showToastGreen('发送成功 url:' + imageMessage.url);
+      //预先显示图片要知道高度
+      mess.emit(MyEvent.ImageMessageHeight, imageHeight);
+
       print('发送成功 url:' + imageMessage.url);
       mess.emit(MyEvent.NewMessage, imageMessage);
-//      mess.emit(MyEvent.ImageMessageHeight, height);
       setState(() {
         _messController.clear();
         myFocusNode.unfocus();

@@ -5,11 +5,11 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/States/GlobalEvent.dart';
-import 'package:lcrealtime/Widgets/ImageWidget.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class MessageList extends StatefulWidget {
   final Conversation conversation;
@@ -29,6 +29,7 @@ class MessageList extends StatefulWidget {
 
 class _MessageListState extends State<MessageList> {
   double _textMessageMaxWidth;
+  double _imageMessageHeight = 250;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
   AutoScrollController _autoScrollController;
@@ -36,7 +37,7 @@ class _MessageListState extends State<MessageList> {
   List<Message> _showMessageList;
   bool _isMessagePositionLeft = false;
   CurrentClient currentClint;
-  final double newImageMessageHeight = 100;
+  bool isImageMessageSendBySelf = false;
 
   //翻页位置的第一条消息
   Message _oldMessage;
@@ -58,6 +59,8 @@ class _MessageListState extends State<MessageList> {
     //第一次进来滚到底
     if (_showMessageList.length >= 10) {
       _scrollToIndex(10);
+    }else{
+      _scrollToIndex(_showMessageList.length);
     }
     //监听滚动
     _autoScrollController.addListener(() {
@@ -66,12 +69,11 @@ class _MessageListState extends State<MessageList> {
     });
 
     //监听自己发送了新消息
-    mess.on(MyEvent.NewMessage, (arg) {
-      if (arg != null) {
-        receiveNewMessage(arg);
+    mess.on(MyEvent.NewMessage, (message) {
+      if (message != null) {
+        receiveNewMessage(message);
       }
     });
-
     //收到新消息
     currentClint = CurrentClient();
     currentClint.client.onMessage = ({
@@ -83,39 +85,69 @@ class _MessageListState extends State<MessageList> {
         receiveNewMessage(message);
       }
     };
-    //监听正在编辑消息
-//    mess.on(MyEvent.EditingMessage, (arg) {
-//      _autoScrollController
-//          .jumpTo(_autoScrollController.position.maxScrollExtent);
-//    });
+    mess.on(MyEvent.ImageMessageHeight, (height) {
+      _imageMessageHeight = height;
+    });
   }
 
   void receiveNewMessage(Message message) {
-    double height;
-//    mess.on(MyEvent.ImageMessageHeight, (arg) {
-////      height = arg;
-//    });
     if (message is TextMessage) {
-      height = calculateTextHeight(getMessageString(message), 14.0,
-              FontWeight.bold, _textMessageMaxWidth - 16, 100) +
-          16 +
-          30;
+    double height = calculateTextHeight(getMessageString(message), 14.0,
+            FontWeight.bold, _textMessageMaxWidth - 16, 100) +
+        16 +
+        30;
+      setState(() {
+        _showMessageList.add(message);
+        _autoScrollController
+            .jumpTo(_autoScrollController.position.maxScrollExtent+height);
+      });
     }
     if (message is ImageMessage) {
-      height = newImageMessageHeight + 40;
+      setState(() {
+        _showMessageList.add(message);
+        _autoScrollController.animateTo(
+            _autoScrollController.position.maxScrollExtent + _imageMessageHeight,
+            duration: Duration(milliseconds: 500),
+            curve: Curves.ease);
+      });
     }
-    setState(() {
-      _showMessageList.add(message);
-      _scrollToIndex(_showMessageList.length);
-//      _autoScrollController
-//          .jumpTo(_autoScrollController.position.maxScrollExtent );
-    });
   }
+
+  //发消息
+//    void sendMessage(MyMessageType type) {
+//      switch (type.index) {
+//        case 0:
+//          //TextMessage 文本消息
+//
+//          break;
+//        case 1:
+//          //ImageMessage 图像消息
+//        sendImageMessage();
+//          break;
+//        case 2:
+//          //AudioMessage 音频消息
+//          break;
+//        case 3:
+//          //VideoMessage 视频消息
+//          break;
+//        case 4:
+//          //FileMessage 普通文件消息（.txt/.doc/.md 等各种）
+//          break;
+//        case 5:
+//          //LocationMessage 地理位置消息
+//          break;
+//        default:
+//          {
+//            showToastRed('消息类型错误！');
+//          }
+//          break;
+//      }
+//    }
 
   Future _scrollToIndex(int index) async {
     await _autoScrollController.scrollToIndex(index,
         duration: Duration(milliseconds: 100),
-        preferPosition: AutoScrollPosition.begin);
+        preferPosition: AutoScrollPosition.end);
   }
 
   void _onRefresh() async {
@@ -285,12 +317,16 @@ class _MessageListState extends State<MessageList> {
     } else if (message is FileMessage) {
       if (message is ImageMessage) {
         return Container(
-            constraints: BoxConstraints(
-              maxWidth: MediaQuery.of(context).size.width * 0.4,
-            ),
-            child: ImageWidget(
-                url: message.url,
-                width: MediaQuery.of(context).size.width * 0.4));
+          constraints: BoxConstraints(
+            maxWidth: MediaQuery.of(context).size.width * 0.4,
+          ),
+          child: CachedNetworkImage(
+            imageUrl: message.url,
+            progressIndicatorBuilder: (context, url, downloadProgress) =>
+                CircularProgressIndicator(value: downloadProgress.progress),
+            errorWidget: (context, url, error) => Icon(Icons.error),
+          ),
+        );
       } else if (message is AudioMessage) {}
     } else {
       return Text('暂未支持的消息类型。。。');
