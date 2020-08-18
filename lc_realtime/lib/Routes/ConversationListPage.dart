@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:lcrealtime/Routes/ConversationDetailPage.dart';
+import 'package:lcrealtime/Widgets/TextWidget.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/Global.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 
@@ -10,11 +12,79 @@ class ConversationListPage extends StatefulWidget {
 }
 
 class _ConversationListPageState extends State<ConversationListPage> {
+//  GlobalKey<TextWidgetState> _textKey = GlobalKey();
+
+  List<GlobalKey<TextWidgetState>> _keyList = [
+    GlobalKeys.riKey1,
+    GlobalKeys.riKey2,
+    GlobalKeys.riKey3,
+    GlobalKeys.riKey4,
+    GlobalKeys.riKey5,
+    GlobalKeys.riKey6,
+    GlobalKeys.riKey7,
+    GlobalKeys.riKey8,
+    GlobalKeys.riKey9,
+    GlobalKeys.riKey10
+  ];
+
+  CurrentClient currentClint;
+
+  Map<String, int> unreadCountMap = Map();
+  Map<String, int> conversationIDToIndexMap = Map();
 
   @override
   void initState() {
     super.initState();
+    currentClint = CurrentClient();
+
+    //收到新消息
+    currentClint.client.onMessage = ({
+      Client client,
+      Conversation conversation,
+      Message message,
+    }) {
+      if (message != null) {
+        receiveNewMessage(message);
+        print('收到信息---');
+      }
+    };
+    //未读数更新通知
+    currentClint.client.onUnreadMessageCountUpdated = ({
+      Client client,
+      Conversation conversation,
+    }) async {
+      print('onUnreadMessageCountUpdated-----:' +
+          conversation.unreadMessageCount.toString());
+      final prefs = await SharedPreferences.getInstance();
+      if (conversation.unreadMessageCount != null) {
+        prefs.setInt(conversation.id, conversation.unreadMessageCount);
+        unreadCountMap[conversation.id] = conversation.unreadMessageCount;
+      } else {
+        prefs.setInt(conversation.id, 0);
+        unreadCountMap[conversation.id] = 0;
+      }
+      setState(() {});
+      //TODO 局部刷新
+//      int count = unreadCountMap[conversation.id];
+//      int index = conversationIDToIndexMap[conversation.id];
+//      print(index.toString()+'index--');
+//      if (count != null && index != null) {
+//        _keyList[index].currentState.onPressed(count);
+//      }
+    };
   }
+
+  void receiveNewMessage(Message message) {
+    //收到新消息刷新页面
+//    setState(() {});
+  }
+//  Future<int> getUnReadMessageCount(String conversationId) async {
+//    final prefs = await SharedPreferences.getInstance();
+//    int counter = prefs.getInt(conversationId) ?? 0;
+//    print('counter:-----:' + counter.toString());
+//    return counter;
+//  }
+//根据ID获取index
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,23 +106,15 @@ class _ConversationListPageState extends State<ConversationListPage> {
                       color: Colors.grey,
                     );
                   },
-
                   physics: const AlwaysScrollableScrollPhysics(),
                   itemCount: snapshot.data.length,
                   itemBuilder: (context, index) {
                     Conversation con = snapshot.data[index];
-//                    con.fetchReceiptTimestamps();
-
-                    print(con.id);
-
                     String name = con.name;
                     List members = con.members;
-
                     String time;
                     String lastMessageString = '暂无新消息';
-
                     if (con.lastMessage == null) {
-                      print('-------------------->' + con.updatedAt.toString());
                       time = getFormatDate(con.updatedAt.toString());
                     } else {
                       time = getFormatDate(con.lastMessageDate.toString());
@@ -60,6 +122,12 @@ class _ConversationListPageState extends State<ConversationListPage> {
                           ':' +
                           getMessageString(con.lastMessage);
                     }
+                    int unreadCount = 0;
+                    if (unreadCountMap[con.id] != null) {
+                      unreadCount = unreadCountMap[con.id];
+                    }
+//                    conversationIDToIndexMap[con.id] = index;
+                    print('unreadCount:-----:' + unreadCount.toString());
 
                     return GestureDetector(
                         onTap: () {
@@ -79,11 +147,23 @@ class _ConversationListPageState extends State<ConversationListPage> {
                                     new Container(
                                       padding: const EdgeInsets.only(
                                           bottom: 8.0, right: 8, left: 10),
-                                      child: new Text(
-                                        name,
-                                        style: new TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: <Widget>[
+                                          Container(
+                                            padding: const EdgeInsets.only(
+                                              right: 4,
+                                            ),
+                                            child: Text(
+                                              name,
+                                              style: new TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                          buildUnReadCountView(unreadCount),
+                                        ],
                                       ),
                                     ),
                                     new Container(
@@ -92,7 +172,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
                                       child: new Text(
                                         members.toString(),
                                         style: new TextStyle(
-                                          color: Colors.grey[500],
+                                          color: Colors.grey[600],
                                         ),
                                       ),
                                     ),
@@ -102,7 +182,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
                                       child: new Text(
                                         lastMessageString,
                                         style: new TextStyle(
-                                          color: Colors.black54,
+                                          color: Colors.black87,
                                         ),
                                       ),
                                     ),
@@ -143,6 +223,36 @@ class _ConversationListPageState extends State<ConversationListPage> {
     );
   }
 
+  Widget buildUnReadCountView(int count) {
+    if (count > 0) {
+      String showNum = '';
+      if (count < 10) {
+        showNum = ''' ''' + count.toString() + ''' ''';
+      } else {
+        showNum = count.toString();
+      }
+      return DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(colors: [Colors.red, Colors.red]),
+            borderRadius: BorderRadius.circular(16.0), //圆角
+          ),
+          child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 3.0, vertical: 3.0),
+//              child: TextWidget(_keyList[index])));
+              child: Text(
+                showNum,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 12.0,
+                ),
+              )));
+    } else {
+      return Container(
+        height: 0,
+      );
+    }
+  }
+
   void onTapEvent(Conversation con) {
     Navigator.push(
       context,
@@ -153,14 +263,33 @@ class _ConversationListPageState extends State<ConversationListPage> {
   }
 
   Future<List<Conversation>> retrieveData() async {
-    CurrentClient currentClient  = CurrentClient();
+    CurrentClient currentClient = CurrentClient();
     List<Conversation> conversations;
     try {
       ConversationQuery query = currentClient.client.conversationQuery();
+      //TODO：上拉加载更多
+      query.limit = 20;
       query.orderByDescending('updatedAt');
       //让查询结果附带一条最新消息
       query.includeLastMessage = true;
       conversations = await query.find();
+
+      //记录未读消息数
+      final prefs = await SharedPreferences.getInstance();
+      conversations.forEach((item) {
+        //之前没有值，存储一份
+        if (prefs.getInt(item.id) == null) {
+          if (item.unreadMessageCount != null) {
+            prefs.setInt(item.id, item.unreadMessageCount);
+            unreadCountMap[item.id] = item.unreadMessageCount;
+          } else {
+            prefs.setInt(item.id, 0);
+            unreadCountMap[item.id] = 0;
+          }
+        } else {
+          unreadCountMap[item.id] = prefs.getInt(item.id);
+        }
+      });
     } catch (e) {
       print(e);
       showToastRed(e.message);

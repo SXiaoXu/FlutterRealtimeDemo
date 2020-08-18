@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:lcrealtime/Widgets/TextWidget.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:leancloud_storage/leancloud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -125,6 +126,20 @@ String getFormatDate(String dateOriginal) {
     // 2019-01-23 09:20
     return dateOriginal.substring(0, 16);
   }
+}
+
+class GlobalKeys {
+  static final GlobalKey<TextWidgetState> riKey1 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey2 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey3 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey4 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey5 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey6 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey7 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey8 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey9 = GlobalKey<TextWidgetState>();
+  static final GlobalKey<TextWidgetState> riKey10 =
+      GlobalKey<TextWidgetState>();
 }
 
 class CommonUtil {

@@ -13,6 +13,6 @@ public class MyApplication extends FlutterApplication{
         super.onCreate();
         AVOSCloud.setLogLevel(AVLogger.Level.DEBUG);
         AVOSCloud.initialize(this, LC_App_Id, LC_App_Key, LC_Server_Url);
-
+        AVIMOptions.getGlobalOptions().setUnreadNotificationEnabled(true);
     }
 }

@@ -59,7 +59,7 @@ class _MessageListState extends State<MessageList> {
     //第一次进来滚到底
     if (_showMessageList.length >= 10) {
       _scrollToIndex(10);
-    }else{
+    } else {
       _scrollToIndex(_showMessageList.length);
     }
     //监听滚动
@@ -82,7 +82,11 @@ class _MessageListState extends State<MessageList> {
       Message message,
     }) {
       if (message != null) {
-        receiveNewMessage(message);
+        //用户正在某个对话页面聊天，并在这个对话中收到了消息时，需要将会话标记为已读
+        if (conversation.id == widget.conversation.id) {
+          conversation.read();
+          receiveNewMessage(message);
+        }
       }
     };
     mess.on(MyEvent.ImageMessageHeight, (height) {
@@ -92,21 +96,22 @@ class _MessageListState extends State<MessageList> {
 
   void receiveNewMessage(Message message) {
     if (message is TextMessage) {
-    double height = calculateTextHeight(getMessageString(message), 14.0,
-            FontWeight.bold, _textMessageMaxWidth - 16, 100) +
-        16 +
-        30;
+      double height = calculateTextHeight(getMessageString(message), 14.0,
+              FontWeight.bold, _textMessageMaxWidth - 16, 100) +
+          16 +
+          30;
       setState(() {
         _showMessageList.add(message);
         _autoScrollController
-            .jumpTo(_autoScrollController.position.maxScrollExtent+height);
+            .jumpTo(_autoScrollController.position.maxScrollExtent + height);
       });
     }
     if (message is ImageMessage) {
       setState(() {
         _showMessageList.add(message);
         _autoScrollController.animateTo(
-            _autoScrollController.position.maxScrollExtent + _imageMessageHeight,
+            _autoScrollController.position.maxScrollExtent +
+                _imageMessageHeight,
             duration: Duration(milliseconds: 500),
             curve: Curves.ease);
       });

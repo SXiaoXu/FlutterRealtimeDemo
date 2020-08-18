@@ -185,7 +185,10 @@ class _InputMessageViewState extends State<InputMessageView> {
 
   void sendVoiceMessage() async {}
 
+
   void voiceButtonPressed() {
+    //TODO 显示语音条
+
     setState(() {
       _isShowImageGridView = false;
       _isShowVoiceIcon = false;

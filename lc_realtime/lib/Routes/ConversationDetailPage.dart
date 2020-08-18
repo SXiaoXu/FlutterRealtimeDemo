@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
+import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:lcrealtime/States/GlobalEvent.dart';
 import 'package:lcrealtime/Widgets/MessageList.dart';
 import 'package:lcrealtime/Widgets/InputMessageView.dart';
@@ -17,15 +18,17 @@ class ConversationDetailPage extends StatefulWidget {
 
 class _ConversationDetailPageState extends State<ConversationDetailPage> {
 //  ScrollController _scrollController = ScrollController(keepScrollOffset: true);
-
   Message _firstMessage;
+  CurrentClient currentClint;
 
   @override
   void initState() {
     super.initState();
+    currentClint = CurrentClient();
+    //进入会话详情页面，标记会话已读
+    this.widget.conversation.read();
     print(this.widget.conversation.id);
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -75,10 +78,6 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
           ),
         ));
   }
-
-//  void slideToEnd() {
-//    _scrollController.jumpTo(_scrollController.position.maxScrollExtent + 40);
-//  }
   Future<List<Message>> queryMessages() async {
     List<Message> messages;
     try {

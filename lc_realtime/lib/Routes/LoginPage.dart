@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Models/CurrentClient.dart';
-import 'package:lcrealtime/routes/ConversationListPage.dart';
 import '../Common/Global.dart';
-import 'package:leancloud_storage/leancloud.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'HomeBottomBar.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,16 +9,17 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  final _formKey = GlobalKey<FormState>();
+//  GlobalKey<FormState> _formKey =  GlobalKeys.formKey;
+//  final GlobalKey<FormState> _formKey =
+//  new GlobalKey<FormState>(debugLabel: '_LoginFormState');
   String _clientID;
 
   @override
   void initState() {
     super.initState();
-    if(Global.clientID != null){
+    if (Global.clientID != null) {
       _clientID = Global.clientID;
-      setState(() {
-      });
+      setState(() {});
     }
   }
 
@@ -31,12 +28,11 @@ class _LoginPageState extends State<LoginPage> {
     Global.saveClientID(clientID);
 
     login(clientID).then((value) {
-
       Navigator.pop(context); //销毁 loading
       Navigator.pushAndRemoveUntil(
           context,
           new MaterialPageRoute(builder: (context) => HomeBottomBarPage()),
-          (_) => false);
+              (_) => false);
     }).catchError((error) {
       showToastRed(error.message);
       Navigator.pop(context); //销毁 loading
@@ -47,7 +43,7 @@ class _LoginPageState extends State<LoginPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Form(
-            key: _formKey,
+//            key: _formKey,
             child: ListView(
               padding: EdgeInsets.symmetric(horizontal: 22.0),
               children: <Widget>[
@@ -68,7 +64,6 @@ class _LoginPageState extends State<LoginPage> {
   Padding buildChooseUserDropdownButton(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 8.0),
-
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
@@ -112,11 +107,11 @@ class _LoginPageState extends State<LoginPage> {
           ),
           color: Colors.blue,
           onPressed: () {
-            if (_formKey.currentState.validate()) {
-              //只有输入的内容符合要求通过才会到达此处
-              _formKey.currentState.save();
-              userLogin(_clientID);
-            }
+            userLogin(_clientID);
+//            if (_formKey.currentState.validate()) {
+//              //只有输入的内容符合要求通过才会到达此处
+//              _formKey.currentState.save();
+//            }
           },
         ),
       ),
@@ -140,9 +135,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future login(String clintID) async {
-
     CurrentClient currentClint = CurrentClient();
-    if(clintID != currentClint.client.id){
+    if (clintID != currentClint.client.id) {
       currentClint.updateClient();
     }
     await currentClint.client.open();
