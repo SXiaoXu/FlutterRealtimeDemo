@@ -116,6 +116,14 @@ class _MessageListState extends State<MessageList> {
             curve: Curves.ease);
       });
     }
+    if (message is AudioMessage) {
+      double height = 40.0 + 16 + 30;
+      setState(() {
+        _showMessageList.add(message);
+        _autoScrollController
+            .jumpTo(_autoScrollController.position.maxScrollExtent + height);
+      });
+    }
   }
 
   //发消息
@@ -332,7 +340,51 @@ class _MessageListState extends State<MessageList> {
             errorWidget: (context, url, error) => Icon(Icons.error),
           ),
         );
-      } else if (message is AudioMessage) {}
+      } else if (message is AudioMessage) {
+        int duration = message.duration.toInt();
+        double width = _textMessageMaxWidth * (duration / 20);
+        if (duration >= 20) {
+          width = _textMessageMaxWidth;
+        }
+        if (duration <= 3) {
+          width =  _textMessageMaxWidth * (3 / 20);
+        }
+        return GestureDetector(
+            onTap: () {
+              if (message.url != null) {
+                mess.emit(MyEvent.PlayAudioMessage, message.url);
+                showToastGreen('消息正在播放');
+              } else {
+                showToastGreen('消息无法播放');
+              }
+            },
+            child: Container(
+                padding: const EdgeInsets.all(8.0),
+                width: width,
+                constraints: BoxConstraints(
+//              maxWidth: width,
+                    ),
+                decoration: _isMessagePositionLeft
+                    ? BoxDecoration(
+                        color: Colors.blue,
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(12.0),
+                        ),
+                      )
+                    : BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.all(
+                          Radius.circular(12.0),
+                        ),
+                      ),
+                child: new Text(
+                  '${duration.toString()}"',
+                  style: new TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color:
+                          _isMessagePositionLeft ? Colors.white : Colors.blue),
+                )));
+      }
     } else {
       return Text('暂未支持的消息类型。。。');
     }

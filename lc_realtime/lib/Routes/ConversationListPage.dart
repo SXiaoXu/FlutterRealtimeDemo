@@ -12,20 +12,6 @@ class ConversationListPage extends StatefulWidget {
 }
 
 class _ConversationListPageState extends State<ConversationListPage> {
-//  GlobalKey<TextWidgetState> _textKey = GlobalKey();
-
-  List<GlobalKey<TextWidgetState>> _keyList = [
-    GlobalKeys.riKey1,
-    GlobalKeys.riKey2,
-    GlobalKeys.riKey3,
-    GlobalKeys.riKey4,
-    GlobalKeys.riKey5,
-    GlobalKeys.riKey6,
-    GlobalKeys.riKey7,
-    GlobalKeys.riKey8,
-    GlobalKeys.riKey9,
-    GlobalKeys.riKey10
-  ];
 
   CurrentClient currentClint;
 
@@ -52,15 +38,15 @@ class _ConversationListPageState extends State<ConversationListPage> {
     currentClint.client.onUnreadMessageCountUpdated = ({
       Client client,
       Conversation conversation,
-    }) async {
+    }) {
       print('onUnreadMessageCountUpdated-----:' +
           conversation.unreadMessageCount.toString());
-      final prefs = await SharedPreferences.getInstance();
+//      final prefs = await SharedPreferences.getInstance();
       if (conversation.unreadMessageCount != null) {
-        prefs.setInt(conversation.id, conversation.unreadMessageCount);
+//        prefs.setInt(conversation.id, conversation.unreadMessageCount);
         unreadCountMap[conversation.id] = conversation.unreadMessageCount;
       } else {
-        prefs.setInt(conversation.id, 0);
+//        prefs.setInt(conversation.id, 0);
         unreadCountMap[conversation.id] = 0;
       }
       setState(() {});
@@ -277,18 +263,26 @@ class _ConversationListPageState extends State<ConversationListPage> {
       //记录未读消息数
       final prefs = await SharedPreferences.getInstance();
       conversations.forEach((item) {
-        //之前没有值，存储一份
-        if (prefs.getInt(item.id) == null) {
-          if (item.unreadMessageCount != null) {
-            prefs.setInt(item.id, item.unreadMessageCount);
-            unreadCountMap[item.id] = item.unreadMessageCount;
-          } else {
-            prefs.setInt(item.id, 0);
-            unreadCountMap[item.id] = 0;
-          }
+        if (item.unreadMessageCount != null) {
+//        prefs.setInt(conversation.id, conversation.unreadMessageCount);
+          unreadCountMap[item.id] = item.unreadMessageCount;
         } else {
-          unreadCountMap[item.id] = prefs.getInt(item.id);
+//        prefs.setInt(conversation.id, 0);
+          unreadCountMap[item.id] = 0;
         }
+
+//        //之前没有值，存储一份
+//        if (prefs.getInt(item.id) == null) {
+//          if (item.unreadMessageCount != null) {
+//            prefs.setInt(item.id, item.unreadMessageCount);
+//            unreadCountMap[item.id] = item.unreadMessageCount;
+//          } else {
+//            prefs.setInt(item.id, 0);
+//            unreadCountMap[item.id] = 0;
+//          }
+//        } else {
+//          unreadCountMap[item.id] = prefs.getInt(item.id);
+//        }
       });
     } catch (e) {
       print(e);

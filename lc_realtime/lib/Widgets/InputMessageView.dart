@@ -6,6 +6,8 @@ import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/States/GlobalEvent.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:leancloud_storage/leancloud.dart';
+import 'package:flutter_plugin_record/flutter_plugin_record.dart';
+import 'package:flutter_plugin_record/index.dart';
 
 class InputMessageView extends StatefulWidget {
   final Conversation conversation;
@@ -17,9 +19,9 @@ class InputMessageView extends StatefulWidget {
 class _InputMessageViewState extends State<InputMessageView> {
   TextEditingController _messController = new TextEditingController();
   final ImagePicker _imagePicker = ImagePicker();
-  PickedFile _pickedFile;
 
   FocusNode myFocusNode;
+  FlutterPluginRecord recordPlugin;
   bool _isShowImageGridView = false;
   bool _isShowVoiceIcon = true;
   IconData _voiceOrTextIcon;
@@ -45,6 +47,26 @@ class _InputMessageViewState extends State<InputMessageView> {
       }
     });
     _voiceOrTextIcon = Icons.keyboard_voice;
+    //录音组件
+    recordPlugin = new FlutterPluginRecord();
+    recordPlugin.init();
+
+    /// 开始录制或结束录制的监听
+    recordPlugin.response.listen((data) {
+      if (data.msg == "onStop") {
+        ///结束录制时会返回录制文件的地址方便上传服务器
+        print("onStop " + data.path);
+      } else if (data.msg == "onStart") {
+        print("onStart --");
+      }
+    });
+    recordPlugin.responsePlayStateController.listen((data) {
+      print("播放路径   " + data.playPath);
+      print("播放状态   " + data.playState);
+    });
+    mess.on(MyEvent.PlayAudioMessage, (path) {
+      recordPlugin.playByPath(path,'url');
+    });
   }
 
   @override
@@ -55,12 +77,16 @@ class _InputMessageViewState extends State<InputMessageView> {
     mess.off(
       MyEvent.ScrollviewDidScroll,
     );
+    mess.off(
+      MyEvent.PlayAudioMessage,
+    );
+    recordPlugin.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.only(top: 30),
+      margin: const EdgeInsets.only(top: 15),
       child: Column(children: <Widget>[
         Container(
           child: buildTextField(),
@@ -168,23 +194,31 @@ class _InputMessageViewState extends State<InputMessageView> {
   }
 
   Widget voiceOrTextView() {
-    return Flexible(
-      child: Container(
-        margin: const EdgeInsets.only(top: 2, bottom: 2),
-        child: TextField(
-          textInputAction: TextInputAction.send,
-          controller: _messController,
-          focusNode: myFocusNode,
-          onEditingComplete: () {
-            sendTextMessage();
-          },
+    if (_isShowVoiceIcon) {
+      return Flexible(
+        child: Container(
+          margin: const EdgeInsets.only(top: 2, bottom: 2),
+          child: TextField(
+            textInputAction: TextInputAction.send,
+            controller: _messController,
+            focusNode: myFocusNode,
+            onEditingComplete: () {
+              sendTextMessage();
+            },
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      return Flexible(
+        child: Container(
+//            margin: EdgeInsets.fromLTRB(50, 0, 50, 0),
+            child:
+                VoiceWidget(startRecord: startRecord, stopRecord: stopRecord)),
+      );
+    }
   }
 
   void sendVoiceMessage() async {}
-
 
   void voiceButtonPressed() {
     //TODO 显示语音条
@@ -298,12 +332,12 @@ class _InputMessageViewState extends State<InputMessageView> {
       print('$count/$total');
       if (count == total) {
         //发消息
-        sendImageMessage(file.data,imageHeight);
+        sendImageMessage(file.data, imageHeight);
       }
     });
   }
 
-  void sendImageMessage(Uint8List binaryData,double imageHeight) async {
+  void sendImageMessage(Uint8List binaryData, double imageHeight) async {
     //上传完成
     try {
       ImageMessage imageMessage = ImageMessage.from(binaryData: binaryData);
@@ -323,5 +357,66 @@ class _InputMessageViewState extends State<InputMessageView> {
       showToastRed(e.toString());
       print(e.toString());
     }
+  }
+
+  startRecord() {
+    print("开始录制");
+  }
+
+  stopRecord(String path, double audioTimeLength) async {
+    print("结束束录制");
+    print("音频文件位置" + path);
+    print("音频录制时长" + audioTimeLength.toString());
+    LCFile file = await LCFile.fromPath('message.wav', path);
+    file.addMetaData('duration', audioTimeLength.toInt());
+    try {
+      await file.save();
+      print(file.objectId);
+      sendAudioMessage(file.data);
+    } catch (e) {
+      showToastRed(e.toString());
+      print(e.toString());
+    }
+  }
+
+  void sendAudioMessage(Uint8List binaryData) async {
+    try {
+      //发送消息
+      AudioMessage audioMessage = AudioMessage.from(
+        binaryData: binaryData,
+        format: 'wav',
+      );
+      audioMessage.text = '语音消息';
+      await this.widget.conversation.send(message: audioMessage);
+      mess.emit(MyEvent.NewMessage, audioMessage);
+      print('语音消息发送成功');
+      setState(() {
+        _messController.clear();
+        myFocusNode.unfocus();
+        _isShowImageGridView = false;
+      });
+    } catch (e) {
+      showToastRed(e.toString());
+      print(e.toString());
+    }
+  }
+  ///停止语音录制的方法
+  void stop() {
+    recordPlugin.stop();
+  }
+
+  ///播放语音的方法
+  void play() {
+    recordPlugin.play();
+  }
+
+  ///播放指定路径录音文件  url为iOS播放网络语音，file为播放本地语音文件
+  void playByPath(String path,String type) {
+    recordPlugin.playByPath(path,type);
+  }
+
+  ///暂停|继续播放
+  void pause() {
+    recordPlugin.pausePlay();
   }
 }

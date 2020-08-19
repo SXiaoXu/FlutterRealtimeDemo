@@ -5,7 +5,7 @@ import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:leancloud_storage/leancloud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum MyEvent { NewMessage, ScrollviewDidScroll, ImageMessageHeight }
+enum MyEvent { NewMessage, ScrollviewDidScroll, ImageMessageHeight,PlayAudioMessage}
 
 //TextMessage 文本消息
 //ImageMessage 图像消息
@@ -80,7 +80,7 @@ String getMessageString(Message message) {
       messageString = '收到图像消息';
     } else if (message is AudioMessage) {
       print('收到音频消息，消息时长：${message.duration}');
-      messageString = '收到音频消息';
+      messageString = '收到语音消息';
     } else if (message is VideoMessage) {
       print('收到视频消息，消息时长：${message.duration}');
       messageString = '收到视频消息';
@@ -128,19 +128,6 @@ String getFormatDate(String dateOriginal) {
   }
 }
 
-class GlobalKeys {
-  static final GlobalKey<TextWidgetState> riKey1 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey2 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey3 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey4 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey5 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey6 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey7 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey8 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey9 = GlobalKey<TextWidgetState>();
-  static final GlobalKey<TextWidgetState> riKey10 =
-      GlobalKey<TextWidgetState>();
-}
 
 class CommonUtil {
   static Future<Null> showLoadingDialog(BuildContext context) {
