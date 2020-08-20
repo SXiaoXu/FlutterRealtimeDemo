@@ -1,8 +1,8 @@
 import 'dart:async';
-import 'dart:io';
-
+import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_plugin_record/flutter_plugin_record.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/States/GlobalEvent.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
@@ -44,6 +44,9 @@ class _MessageListState extends State<MessageList> {
   //翻页最后一页长度小于 10 特殊处理
   int _lastPageLength = 0;
   bool _isNeedScrollToNewPage = false;
+
+  AudioPlayer audioPlayer;
+  FlutterPluginRecord recordPlugin;
 
   @override
   void initState() {
@@ -92,6 +95,19 @@ class _MessageListState extends State<MessageList> {
     mess.on(MyEvent.ImageMessageHeight, (height) {
       _imageMessageHeight = height;
     });
+//    audioPlayer = AudioPlayer();
+    recordPlugin = new FlutterPluginRecord();
+//    初始化
+    recordPlugin.init();
+    recordPlugin.responsePlayStateController.listen((data) {
+      print("播放路径   " + data.playPath);
+      print("播放状态   " + data.playState);
+    });
+  }
+
+  void playAudio(String url) {
+    print('play...');
+    recordPlugin.playByPath(url, 'url');
   }
 
   void receiveNewMessage(Message message) {
@@ -347,13 +363,16 @@ class _MessageListState extends State<MessageList> {
           width = _textMessageMaxWidth;
         }
         if (duration <= 3) {
-          width =  _textMessageMaxWidth * (3 / 20);
+          width = _textMessageMaxWidth * (3 / 20);
         }
         return GestureDetector(
             onTap: () {
               if (message.url != null) {
-                mess.emit(MyEvent.PlayAudioMessage, message.url);
-                showToastGreen('消息正在播放');
+//                mess.emit(MyEvent.PlayAudioMessage, message.url);
+//                showToastGreen('消息正在播放');
+//                recordPlugin.playByPath(message.url,'url');
+
+                playAudio(message.url);
               } else {
                 showToastGreen('消息无法播放');
               }
@@ -452,11 +471,24 @@ class _MessageListState extends State<MessageList> {
   @override
   void dispose() {
     super.dispose();
-
+    recordPlugin.dispose();
     //取消订阅
     mess.off(MyEvent.NewMessage);
     mess.off(MyEvent.ImageMessageHeight);
-
 //    mess.off(MyEvent.EditingMessage);
+  }
+
+  @override
+  void deactivate() async {
+    print('结束');
+//    int result = await audioPlayer.release();
+//    if (result == 1) {
+//      print('release success');
+//    } else {
+//      print('release failed');
+//    }
+    super.deactivate();
+    recordPlugin.stopPlay();
+    recordPlugin.dispose();
   }
 }

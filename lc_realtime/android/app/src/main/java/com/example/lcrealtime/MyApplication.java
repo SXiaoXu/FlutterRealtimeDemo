@@ -1,6 +1,7 @@
 package com.example.lcrealtime;
 import cn.leancloud.AVLogger;
 import cn.leancloud.AVOSCloud;
+import cn.leancloud.im.AVIMOptions;
 import io.flutter.app.FlutterApplication;
 
 public class MyApplication extends FlutterApplication{
@@ -11,8 +12,10 @@ public class MyApplication extends FlutterApplication{
     @Override
     public void onCreate() {
         super.onCreate();
+
+        AVIMOptions.getGlobalOptions().setUnreadNotificationEnabled(true);
+
         AVOSCloud.setLogLevel(AVLogger.Level.DEBUG);
         AVOSCloud.initialize(this, LC_App_Id, LC_App_Key, LC_Server_Url);
-        AVIMOptions.getGlobalOptions().setUnreadNotificationEnabled(true);
     }
 }

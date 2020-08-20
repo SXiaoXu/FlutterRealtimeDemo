@@ -50,23 +50,21 @@ class _InputMessageViewState extends State<InputMessageView> {
     //录音组件
     recordPlugin = new FlutterPluginRecord();
     recordPlugin.init();
+//
+//    /// 开始录制或结束录制的监听
+//    recordPlugin.response.listen((data) {
+//      if (data.msg == "onStop") {
+//        ///结束录制时会返回录制文件的地址方便上传服务器
+//        print("onStop " + data.path);
+//      } else if (data.msg == "onStart") {
+//        print("onStart --");
+//      }
+//    });
 
-    /// 开始录制或结束录制的监听
-    recordPlugin.response.listen((data) {
-      if (data.msg == "onStop") {
-        ///结束录制时会返回录制文件的地址方便上传服务器
-        print("onStop " + data.path);
-      } else if (data.msg == "onStart") {
-        print("onStart --");
-      }
-    });
-    recordPlugin.responsePlayStateController.listen((data) {
-      print("播放路径   " + data.playPath);
-      print("播放状态   " + data.playState);
-    });
-    mess.on(MyEvent.PlayAudioMessage, (path) {
-      recordPlugin.playByPath(path,'url');
-    });
+//    mess.on(MyEvent.PlayAudioMessage, (path) {
+//      showToastGreen('消息正在播放');
+//      recordPlugin.playByPath(path,'url');
+//    });
   }
 
   @override
@@ -399,24 +397,5 @@ class _InputMessageViewState extends State<InputMessageView> {
       showToastRed(e.toString());
       print(e.toString());
     }
-  }
-  ///停止语音录制的方法
-  void stop() {
-    recordPlugin.stop();
-  }
-
-  ///播放语音的方法
-  void play() {
-    recordPlugin.play();
-  }
-
-  ///播放指定路径录音文件  url为iOS播放网络语音，file为播放本地语音文件
-  void playByPath(String path,String type) {
-    recordPlugin.playByPath(path,type);
-  }
-
-  ///暂停|继续播放
-  void pause() {
-    recordPlugin.pausePlay();
   }
 }
