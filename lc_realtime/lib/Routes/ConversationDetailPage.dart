@@ -18,6 +18,8 @@ class ConversationDetailPage extends StatefulWidget {
 
 class _ConversationDetailPageState extends State<ConversationDetailPage> {
 //  ScrollController _scrollController = ScrollController(keepScrollOffset: true);
+  TextEditingController renameController = TextEditingController();
+
   Message _firstMessage;
   CurrentClient currentClint;
 
@@ -29,12 +31,14 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
     this.widget.conversation.read();
     print(this.widget.conversation.id);
   }
+
   @override
   void deactivate() async {
     super.deactivate();
     //刷新列表
     mess.emit(MyEvent.ConversationRefresh);
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,7 +48,9 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
           actions: <Widget>[
             IconButton(
               icon: Icon(Icons.settings, color: Colors.white),
-//              onPressed: 跳转到设置页面,
+              onPressed: () {
+                showConfirmDialog();
+              },
             )
           ],
         ),
@@ -62,7 +68,7 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
                       child: Text("Error: ${snapshot.error}"),
                     ),
                   );
-                }else {
+                } else {
                   return Column(
                     children: <Widget>[
                       MessageList(
@@ -84,6 +90,52 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
           ),
         ));
   }
+
+  void updateConInfo() async {
+    if (renameController.text != null && renameController.text != '') {
+      await widget.conversation.updateInfo(attributes: {
+        'name': renameController.text,
+      });
+
+      setState(() {});
+    } else {
+      showToastRed('名称不能为空');
+    }
+  }
+
+  Future<bool> showConfirmDialog() async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "修改会话名称：",
+            style: new TextStyle(
+              fontWeight: FontWeight.normal,
+            ),
+          ),
+          content: TextField(
+            controller: renameController,
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("取消"),
+              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
+            ),
+            FlatButton(
+              child: Text("确认"),
+              onPressed: () {
+                updateConInfo();
+                //关闭对话框并返回true
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<List<Message>> queryMessages() async {
     List<Message> messages;
     try {
@@ -96,5 +148,4 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
     }
     return messages;
   }
-
 }

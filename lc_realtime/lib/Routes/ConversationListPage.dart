@@ -13,7 +13,6 @@ class ConversationListPage extends StatefulWidget {
 }
 
 class _ConversationListPageState extends State<ConversationListPage> {
-
   CurrentClient currentClint;
 
   Map<String, int> unreadCountMap = Map();
@@ -63,7 +62,6 @@ class _ConversationListPageState extends State<ConversationListPage> {
 //        _keyList[index].currentState.onPressed(count);
 //      }
     };
-
   }
 
   void receiveNewMessage(Message message) {
@@ -83,6 +81,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
     //取消订阅
     mess.off(MyEvent.ConversationRefresh);
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

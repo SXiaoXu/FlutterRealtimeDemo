@@ -32,7 +32,7 @@ class _MessageListState extends State<MessageList> {
   double _imageMessageHeight = 250;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
-  AutoScrollController _autoScrollController ;
+  AutoScrollController _autoScrollController;
 
   List<Message> _showMessageList = List<Message>();
   bool _isMessagePositionLeft = false;
@@ -40,7 +40,7 @@ class _MessageListState extends State<MessageList> {
   bool isImageMessageSendBySelf = false;
 
   //翻页位置的第一条消息
-  Message _oldMessage= Message();
+  Message _oldMessage = Message();
   //翻页最后一页长度小于 10 特殊处理
   int _lastPageLength = 0;
   bool _isNeedScrollToNewPage = false;
@@ -60,12 +60,12 @@ class _MessageListState extends State<MessageList> {
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
         axis: Axis.vertical);
 
-      //第一次进来滚到底
-      if (_showMessageList.length >= 10 ) {
-        _scrollToIndex(10);
-      } else {
-        _scrollToIndex(_showMessageList.length);
-      }
+    //第一次进来滚到底
+    if (_showMessageList.length >= 10) {
+      _scrollToIndex(10);
+    } else {
+      _scrollToIndex(_showMessageList.length);
+    }
 
     //监听滚动
     _autoScrollController.addListener(() {
