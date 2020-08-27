@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
+import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'ConversationDetailPage.dart';
 
@@ -49,9 +50,11 @@ class _ContactsPageState extends State<ContactsPage> {
 
   void onTapEvent(String clientID) async {
     if (Global.clientID != null) {
-      Client currentClient = Client(id: Global.clientID);
+//      Client currentClient = Client(id: Global.clientID);
+      CurrentClient currentClient = CurrentClient();
+
       try {
-        Conversation conversation = await currentClient.createConversation(
+        Conversation conversation = await currentClient.client.createConversation(
             isUnique: true,
             members: {clientID},
             name: Global.clientID + ' & ' + clientID);

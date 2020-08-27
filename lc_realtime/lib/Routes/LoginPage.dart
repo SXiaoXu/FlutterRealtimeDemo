@@ -9,14 +9,12 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-//  GlobalKey<FormState> _formKey =  GlobalKeys.formKey;
-//  final GlobalKey<FormState> _formKey =
-//  new GlobalKey<FormState>(debugLabel: '_LoginFormState');
   String _clientID;
 
   @override
   void initState() {
     super.initState();
+
     if (Global.clientID != null) {
       _clientID = Global.clientID;
       setState(() {});
@@ -38,7 +36,6 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pop(context); //销毁 loading
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -108,10 +105,6 @@ class _LoginPageState extends State<LoginPage> {
           color: Colors.blue,
           onPressed: () {
             userLogin(_clientID);
-//            if (_formKey.currentState.validate()) {
-//              //只有输入的内容符合要求通过才会到达此处
-//              _formKey.currentState.save();
-//            }
           },
         ),
       ),

@@ -60,37 +60,9 @@ dependencies {
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
-//    implementation('cn.leancloud:realtime-android:6.5.0') {
-//        exclude group: 'cn.leancloud', module: 'realtime-core'
-//    }
-//    implementation('cn.leancloud:storage-android:6.5.0') {
-//        exclude group: 'cn.leancloud', module: 'realtime-core'
-//    }
-
-//只这两行会报错
-//    implementation 'cn.leancloud:realtime-android:6.5.0'
-//    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-//
-
-//    implementation('cn.leancloud:realtime-android:6.5.0') {
-//        exclude group: 'com.alibaba', module: 'fastjson'
-//        exclude group: 'org.ligboy.retrofit2', module: 'converter-fastjson'
-//    }
-//
-//    implementation('cn.leancloud:storage-android:6.5.0') {
-//        exclude group: 'com.alibaba', module: 'fastjson'
-//        exclude group: 'org.ligboy.retrofit2', module: 'converter-fastjson'
-//    }
-//
-//    // implementation 'com.alibaba:fastjson:1.1.71.android'  // 注意删除这一行
-//
-//    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-//    implementation("org.ligboy.retrofit2:converter-fastjson-android:2.1.0") {
-//        exclude group: 'com.alibaba', module: 'fastjson' // 注意增加这一行
-//    }
     //使用存储服务
     implementation 'cn.leancloud:storage-android:7.0.5'
-//使用即时通信
+    //使用即时通信
     implementation 'cn.leancloud:realtime-android:7.0.5'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 

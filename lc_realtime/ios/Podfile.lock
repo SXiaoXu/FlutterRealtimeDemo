@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.2.1)
+  - Alamofire (5.2.2)
   - audioplayers (0.0.1):
     - Flutter
   - Flutter (1.0.0)
@@ -14,12 +14,11 @@ PODS:
   - FMDB/standard (2.7.5)
   - image_picker (0.0.1):
     - Flutter
-  - LeanCloud/Foundation (17.5.7):
-    - Alamofire (~> 5.0)
-  - LeanCloud/RTM-no-local-storage (17.5.7):
-    - LeanCloud/Foundation (= 17.5.7)
-    - Starscream (~> 3.1)
-    - SwiftProtobuf (~> 1.8)
+  - LeanCloud/Foundation (17.6.0):
+    - Alamofire (~> 5.2)
+  - LeanCloud/RTM-no-local-storage (17.6.0):
+    - LeanCloud/Foundation (= 17.6.0)
+    - SwiftProtobuf (~> 1.10)
   - leancloud_official_plugin (0.0.1):
     - Flutter
     - LeanCloud/RTM-no-local-storage (~> 17.5)
@@ -40,8 +39,7 @@ PODS:
   - sqflite (0.0.1):
     - Flutter
     - FMDB (~> 2.7.2)
-  - Starscream (3.1.1)
-  - SwiftProtobuf (1.10.2)
+  - SwiftProtobuf (1.11.0)
 
 DEPENDENCIES:
   - audioplayers (from `.symlinks/plugins/audioplayers/ios`)
@@ -65,7 +63,6 @@ SPEC REPOS:
     - Alamofire
     - FMDB
     - LeanCloud
-    - Starscream
     - SwiftProtobuf
 
 EXTERNAL SOURCES:
@@ -101,7 +98,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/sqflite/ios"
 
 SPEC CHECKSUMS:
-  Alamofire: e911732990610fe89af59ac0077f923d72dc3dfd
+  Alamofire: 814429acc853c6c54ff123fc3d2ef66803823ce0
   audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_plugin_android_lifecycle: dc0b544e129eebb77a6bfb1239d4d1c673a60a35
@@ -109,7 +106,7 @@ SPEC CHECKSUMS:
   fluttertoast: b644586ef3b16f67fae9a1f8754cef6b2d6b634b
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   image_picker: 9c3312491f862b28d21ecd8fdf0ee14e601b3f09
-  LeanCloud: 23e3db9769eaf018e275008734b3b2846c154f77
+  LeanCloud: 37b7dff1dd6061a572b8d4367464df74f315b74f
   leancloud_official_plugin: ceb817795578f83f4d250542b858b6bb7e3d6ea6
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   path_provider_linux: 4d630dc393e1f20364f3e3b4a2ff41d9674a84e4
@@ -119,8 +116,7 @@ SPEC CHECKSUMS:
   shared_preferences_macos: f3f29b71ccbb56bf40c9dd6396c9acf15e214087
   shared_preferences_web: 141cce0c3ed1a1c5bf2a0e44f52d31eeb66e5ea9
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
-  Starscream: 4bb2f9942274833f7b4d296a55504dcfc7edb7b0
-  SwiftProtobuf: bec1ae7d686ff73dd09d79866154f4970b891410
+  SwiftProtobuf: f889fe5772f90ef7d7b8aac352d1fddf39650713
 
 PODFILE CHECKSUM: 8f8c861fcb052da2e8967f107e8931ee7ae35f38
 
