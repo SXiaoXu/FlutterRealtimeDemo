@@ -5,6 +5,7 @@ import 'package:lcrealtime/Widgets/TextWidget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../Common/Global.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
+import 'package:lcrealtime/States/GlobalEvent.dart';
 
 class ConversationListPage extends StatefulWidget {
   @override
@@ -34,6 +35,10 @@ class _ConversationListPageState extends State<ConversationListPage> {
         print('收到信息---');
       }
     };
+    //
+    mess.on(MyEvent.ConversationRefresh, (arg) {
+      setState(() {});
+    });
     //未读数更新通知
     currentClint.client.onUnreadMessageCountUpdated = ({
       Client client,
@@ -58,6 +63,7 @@ class _ConversationListPageState extends State<ConversationListPage> {
 //        _keyList[index].currentState.onPressed(count);
 //      }
     };
+
   }
 
   void receiveNewMessage(Message message) {
@@ -71,6 +77,12 @@ class _ConversationListPageState extends State<ConversationListPage> {
 //    return counter;
 //  }
 //根据ID获取index
+  @override
+  void dispose() {
+    super.dispose();
+    //取消订阅
+    mess.off(MyEvent.ConversationRefresh);
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(

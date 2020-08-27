@@ -30,6 +30,12 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
     print(this.widget.conversation.id);
   }
   @override
+  void deactivate() async {
+    super.deactivate();
+    //刷新列表
+    mess.emit(MyEvent.ConversationRefresh);
+  }
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
@@ -90,4 +96,5 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
     }
     return messages;
   }
+
 }

@@ -28,43 +28,45 @@ class MessageList extends StatefulWidget {
 }
 
 class _MessageListState extends State<MessageList> {
-  double _textMessageMaxWidth;
+  double _textMessageMaxWidth = 200;
   double _imageMessageHeight = 250;
   RefreshController _refreshController =
       RefreshController(initialRefresh: false);
-  AutoScrollController _autoScrollController;
+  AutoScrollController _autoScrollController ;
 
-  List<Message> _showMessageList;
+  List<Message> _showMessageList = List<Message>();
   bool _isMessagePositionLeft = false;
   CurrentClient currentClint;
   bool isImageMessageSendBySelf = false;
 
   //翻页位置的第一条消息
-  Message _oldMessage;
+  Message _oldMessage= Message();
   //翻页最后一页长度小于 10 特殊处理
   int _lastPageLength = 0;
   bool _isNeedScrollToNewPage = false;
 
-  AudioPlayer audioPlayer;
   FlutterPluginRecord recordPlugin;
 
   @override
   void initState() {
     super.initState();
     _oldMessage = widget.firstMessage;
-    _showMessageList = widget.firstPageMessages;
+    if (widget.firstPageMessages != null) {
+      _showMessageList = widget.firstPageMessages;
+    }
 
     _autoScrollController = AutoScrollController(
         viewportBoundaryGetter: () =>
             Rect.fromLTRB(0, 0, 0, MediaQuery.of(context).padding.bottom),
         axis: Axis.vertical);
 
-    //第一次进来滚到底
-    if (_showMessageList.length >= 10) {
-      _scrollToIndex(10);
-    } else {
-      _scrollToIndex(_showMessageList.length);
-    }
+      //第一次进来滚到底
+      if (_showMessageList.length >= 10 ) {
+        _scrollToIndex(10);
+      } else {
+        _scrollToIndex(_showMessageList.length);
+      }
+
     //监听滚动
     _autoScrollController.addListener(() {
       //通知收起键盘
@@ -95,7 +97,6 @@ class _MessageListState extends State<MessageList> {
     mess.on(MyEvent.ImageMessageHeight, (height) {
       _imageMessageHeight = height;
     });
-//    audioPlayer = AudioPlayer();
     recordPlugin = new FlutterPluginRecord();
 //    初始化
     recordPlugin.init();
@@ -141,37 +142,6 @@ class _MessageListState extends State<MessageList> {
       });
     }
   }
-
-  //发消息
-//    void sendMessage(MyMessageType type) {
-//      switch (type.index) {
-//        case 0:
-//          //TextMessage 文本消息
-//
-//          break;
-//        case 1:
-//          //ImageMessage 图像消息
-//        sendImageMessage();
-//          break;
-//        case 2:
-//          //AudioMessage 音频消息
-//          break;
-//        case 3:
-//          //VideoMessage 视频消息
-//          break;
-//        case 4:
-//          //FileMessage 普通文件消息（.txt/.doc/.md 等各种）
-//          break;
-//        case 5:
-//          //LocationMessage 地理位置消息
-//          break;
-//        default:
-//          {
-//            showToastRed('消息类型错误！');
-//          }
-//          break;
-//      }
-//    }
 
   Future _scrollToIndex(int index) async {
     await _autoScrollController.scrollToIndex(index,

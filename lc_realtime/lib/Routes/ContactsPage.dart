@@ -50,7 +50,6 @@ class _ContactsPageState extends State<ContactsPage> {
 
   void onTapEvent(String clientID) async {
     if (Global.clientID != null) {
-//      Client currentClient = Client(id: Global.clientID);
       CurrentClient currentClient = CurrentClient();
 
       try {
