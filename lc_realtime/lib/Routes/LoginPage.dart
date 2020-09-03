@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lcrealtime/Models/CurrentClient.dart';
+import 'package:lcrealtime/Routes/UserProtocol.dart';
 import '../Common/Global.dart';
 import 'HomeBottomBar.dart';
 
@@ -10,6 +11,7 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   String _clientID;
+  bool _checkboxSelected = true;
 
   @override
   void initState() {
@@ -30,32 +32,32 @@ class _LoginPageState extends State<LoginPage> {
       Navigator.pushAndRemoveUntil(
           context,
           new MaterialPageRoute(builder: (context) => HomeBottomBarPage()),
-              (_) => false);
+          (_) => false);
     }).catchError((error) {
       showToastRed(error.message);
       Navigator.pop(context); //销毁 loading
     });
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         body: Form(
-//            key: _formKey,
             child: ListView(
-              padding: EdgeInsets.symmetric(horizontal: 22.0),
-              children: <Widget>[
-                SizedBox(
-                  height: kToolbarHeight,
-                ),
-                SizedBox(height: 80.0),
-                buildTitle(),
-                SizedBox(height: 30.0),
-//                buildOpenIDTextField(),
-                buildChooseUserDropdownButton(context),
-                SizedBox(height: 30.0),
-                buildClientOpenButton(context),
-              ],
-            )));
+      padding: EdgeInsets.symmetric(horizontal: 22.0),
+      children: <Widget>[
+        SizedBox(
+          height: kToolbarHeight,
+        ),
+        SizedBox(height: 80.0),
+        buildTitle(),
+        SizedBox(height: 30.0),
+        buildChooseUserDropdownButton(context),
+        SizedBox(height: 30.0),
+        buildCheckBox(context),
+        buildClientOpenButton(context),
+      ],
+    )));
   }
 
   Padding buildChooseUserDropdownButton(BuildContext context) {
@@ -92,6 +94,37 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Padding buildCheckBox(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          Checkbox(
+            value: _checkboxSelected,
+            activeColor: Colors.blue, //选中时的颜色
+            onChanged: (value) {
+              setState(() {
+                _checkboxSelected = value;
+              });
+            },
+          ),
+          GestureDetector(
+            child: Text(
+              '同意用户使用协议',
+              style: TextStyle(
+                color: Colors.blue,
+                decoration: TextDecoration.underline,
+                fontSize: 15.0,
+              ),
+            ),
+            onTap: () => showUserProtocolPage(), //点击
+          )
+        ],
+      ),
+    );
+  }
+
   Align buildClientOpenButton(BuildContext context) {
     return Align(
       child: SizedBox(
@@ -104,15 +137,15 @@ class _LoginPageState extends State<LoginPage> {
           ),
           color: Colors.blue,
           onPressed: () {
-            userLogin(_clientID);
+            if (!_checkboxSelected) {
+              showToastRed('未同意用户使用协议');
+            } else {
+              userLogin(_clientID);
+            }
           },
         ),
       ),
     );
-  }
-
-  Text buildOpenIDTextField() {
-    return Text('ID：');
   }
 
   Padding buildTitle() {
@@ -125,6 +158,15 @@ class _LoginPageState extends State<LoginPage> {
             style: TextStyle(fontSize: 26.0, color: Colors.blue),
           ),
         ));
+  }
+
+  showUserProtocolPage() {
+    Navigator.push(
+      context,
+      new MaterialPageRoute(
+        builder: (context) => new UserProtocolPage(),
+      ),
+    );
   }
 
   Future login(String clintID) async {

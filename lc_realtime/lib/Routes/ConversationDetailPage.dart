@@ -96,7 +96,6 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
       await widget.conversation.updateInfo(attributes: {
         'name': renameController.text,
       });
-
       setState(() {});
     } else {
       showToastRed('名称不能为空');

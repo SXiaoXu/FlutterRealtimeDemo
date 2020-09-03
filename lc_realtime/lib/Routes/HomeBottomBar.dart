@@ -93,7 +93,6 @@ class _HomeBottomBarPageState extends State<HomeBottomBarPage> {
         child: IconButton(
             icon: Icon(Icons.add),
             onPressed: () {
-
                 Navigator.push(
                   context,
                   new MaterialPageRoute(

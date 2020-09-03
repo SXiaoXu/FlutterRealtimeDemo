@@ -290,7 +290,7 @@ class _InputMessageViewState extends State<InputMessageView> {
         TextMessage textMessage = TextMessage();
         textMessage.text = _messController.text;
         await this.widget.conversation.send(message: textMessage);
-        showToastGreen('发送成功');
+//        showToastGreen('发送成功');
         mess.emit(MyEvent.NewMessage, textMessage);
         _messController.clear();
         myFocusNode.unfocus();
@@ -340,11 +340,11 @@ class _InputMessageViewState extends State<InputMessageView> {
     try {
       ImageMessage imageMessage = ImageMessage.from(binaryData: binaryData);
       await this.widget.conversation.send(message: imageMessage);
-      showToastGreen('发送成功 url:' + imageMessage.url);
+//      showToastGreen('发送成功 url:' + imageMessage.url);
       //预先显示图片要知道高度
       mess.emit(MyEvent.ImageMessageHeight, imageHeight);
 
-      print('发送成功 url:' + imageMessage.url);
+//      print('发送成功 url:' + imageMessage.url);
       mess.emit(MyEvent.NewMessage, imageMessage);
       setState(() {
         _messController.clear();
@@ -387,7 +387,7 @@ class _InputMessageViewState extends State<InputMessageView> {
       audioMessage.text = '语音消息';
       await this.widget.conversation.send(message: audioMessage);
       mess.emit(MyEvent.NewMessage, audioMessage);
-      print('语音消息发送成功');
+//      print('语音消息发送成功');
       setState(() {
         _messController.clear();
         myFocusNode.unfocus();

@@ -9,6 +9,7 @@ import UserNotifications
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
     ) -> Bool {
         do {
+                   
             LCApplication.logLevel = .all
             try LCApplication.default.set(
                  id: "1eUivazFXYwJvuGpPl2LE4uY-gzGzoHsz",
@@ -64,7 +65,24 @@ import UserNotifications
         }
     }
     override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        print("--")
         print(error)
     }
+    
+override func applicationDidBecomeActive(_ application: UIApplication) {
+    //本地清空角标
+    application.applicationIconBadgeNumber = 0
+    //currentInstallation 的角标清零
+    LCApplication.default.currentInstallation.badge = 0
+    LCApplication.default.currentInstallation.save { (result) in
+        switch result {
+        case .success:
+            break
+        case .failure(error: let error):
+            print(error)
+        }
+    }
+    
+ }
 }
+
+
