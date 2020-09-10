@@ -20,11 +20,21 @@ def flutterVersionName = localProperties.getProperty('flutter.versionName')
 if (flutterVersionName == null) {
     flutterVersionName = '1.0'
 }
-
+apply plugin: 'com.huawei.agconnect'
 apply plugin: 'com.android.application'
 apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 
+
 android {
+    signingConfigs {
+        config {
+            keyPassword '123456'
+            keyAlias 'testalias'
+            storeFile file('/Users/vivian/Documents/LeanCloud/Flutter_WorkPlace/FlutterRealtimeDemo/lc_realtime/android/test.keystore')
+            storePassword '123456'
+        }
+    }
+    //配置签名
     compileSdkVersion 28
 
     lintOptions {
@@ -43,10 +53,13 @@ android {
     }
 
     buildTypes {
+        debug {
+            signingConfig signingConfigs.config
+        }
         release {
-            // TODO: Add your own signing config for the release build.
-            // Signing with the debug keys for now, so `flutter run --release` works.
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.config
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
 }
@@ -56,6 +69,10 @@ flutter {
 }
 
 dependencies {
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation files("libs/vivo_pushsdk-v2.9.0.0.aar")
+    implementation 'cn.leancloud:mixpush-oppo:6.5.12'
+
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
@@ -65,5 +82,12 @@ dependencies {
     //使用即时通信
     implementation 'cn.leancloud:realtime-android:7.0.5'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-
+    //混合推送需要的包
+    implementation 'cn.leancloud:mixpush-android:7.0.5'
+    //华为推送
+    implementation 'com.huawei.hms:push:4.0.2.300'
+    //魅族推送需要的包
+    implementation 'com.meizu.flyme.internet:push-internal:3.6.+@aar'
+    implementation files("libs/vivo_pushsdk-v2.9.0.0.aar")
+    implementation 'cn.leancloud:mixpush-oppo:6.5.12'
 }
