@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
+import 'package:leancloud_storage/leancloud.dart';
 import 'ConversationDetailPage.dart';
 
 class ContactsPage extends StatefulWidget {
@@ -41,6 +42,7 @@ class _ContactsPageState extends State<ContactsPage> {
                 onTap: () {
                   showConfirmDialog(_list[index]);
                 },
+
                 child: ListTile(title: Text(_list[index])),
               );
             }),
@@ -48,26 +50,34 @@ class _ContactsPageState extends State<ContactsPage> {
     ]);
   }
 
-  void onTapEvent(String clientID) async {
+  void addBlackList(String clientID) async {
     if (Global.clientID != null) {
-      CurrentClient currentClient = CurrentClient();
 
-      try {
-        Conversation conversation = await currentClient.client.createConversation(
-            isUnique: true,
-            members: {clientID},
-            name: Global.clientID + ' & ' + clientID);
+      LCObject blackList = LCObject('BlackList');
+      blackList['clientID'] = Global.clientID;
+      blackList.addAllUnique('blackedList', [clientID]);
+      await blackList.save();
+      showToastGreen('加入黑名单成功！');
+      _list.remove(clientID);
+      setState(() {
+      });
 
-        Navigator.push(
-          context,
-          new MaterialPageRoute(
-            builder: (context) =>
-                new ConversationDetailPage(conversation: conversation),
-          ),
-        );
-      } catch (e) {
-        showToastRed('创建会话失败:${e.message}');
-      }
+//      try {
+//        Conversation conversation = await currentClient.client.createConversation(
+//            isUnique: true,
+//            members: {clientID},
+//            name: Global.clientID + ' & ' + clientID);
+//
+//        Navigator.push(
+//          context,
+//          new MaterialPageRoute(
+//            builder: (context) =>
+//                new ConversationDetailPage(conversation: conversation),
+//          ),
+//        );
+//      } catch (e) {
+//        showToastRed('创建会话失败:${e.message}');
+//      }
     } else {
       showToastRed('用户未登录');
       return;
@@ -78,8 +88,8 @@ class _ContactsPageState extends State<ContactsPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text("提示"),
-          content: Text("确认开始与 $name 聊天？"),
+          title: Text("加入黑名单"),
+          content: Text("确认将 $name 加入黑名单，不再接收其任何消息吗？"),
           actions: <Widget>[
             FlatButton(
               child: Text("取消"),
@@ -88,7 +98,7 @@ class _ContactsPageState extends State<ContactsPage> {
             FlatButton(
               child: Text("确认"),
               onPressed: () {
-                onTapEvent(name);
+                addBlackList(name);
                 //关闭对话框并返回true
                 Navigator.of(context).pop();
               },

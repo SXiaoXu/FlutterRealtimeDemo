@@ -30,13 +30,18 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
     //进入会话详情页面，标记会话已读
     this.widget.conversation.read();
     print(this.widget.conversation.id);
+
+
+
+
+
   }
 
   @override
   void deactivate() async {
     super.deactivate();
-    //刷新列表
-    mess.emit(MyEvent.ConversationRefresh);
+//    //刷新列表
+//    mess.emit(MyEvent.ConversationRefresh);
   }
 
   @override
@@ -96,7 +101,18 @@ class _ConversationDetailPageState extends State<ConversationDetailPage> {
       await widget.conversation.updateInfo(attributes: {
         'name': renameController.text,
       });
-      setState(() {});
+//      setState(() {});
+
+
+      List conversations;
+      ConversationQuery query = currentClint.client.conversationQuery();
+      query.whereEqualTo('objectId', widget.conversation.id);
+
+      conversations = await query.find();
+      Conversation conversationFirst = conversations.first;
+      print('name--->' + conversationFirst.name);
+
+
     } else {
       showToastRed('名称不能为空');
     }

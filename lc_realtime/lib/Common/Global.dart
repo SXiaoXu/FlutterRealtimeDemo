@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:lcrealtime/Widgets/TextWidget.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
 import 'package:leancloud_storage/leancloud.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum MyEvent { NewMessage, ScrollviewDidScroll, ImageMessageHeight,PlayAudioMessage,ConversationRefresh}
+enum MyEvent {
+  NewMessage,
+  ScrollviewDidScroll,
+  ImageMessageHeight,
+  PlayAudioMessage,
+  ConversationRefresh
+}
 
 //TextMessage 文本消息
 //ImageMessage 图像消息
@@ -107,6 +112,9 @@ String getMessageString(Message message) {
 
 ///根据给定的日期得到format后的日期
 String getFormatDate(String dateOriginal) {
+  if (dateOriginal == null) {
+    return '';
+  }
   //现在的日期
   var today = DateTime.now();
   //今天的23:59:59
@@ -127,7 +135,6 @@ String getFormatDate(String dateOriginal) {
     return dateOriginal.substring(0, 16);
   }
 }
-
 
 class CommonUtil {
   static Future<Null> showLoadingDialog(BuildContext context) {

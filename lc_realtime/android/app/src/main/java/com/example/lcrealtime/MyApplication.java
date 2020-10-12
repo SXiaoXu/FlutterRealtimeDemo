@@ -23,12 +23,12 @@ public class MyApplication extends FlutterApplication{
         AVOSCloud.setLogLevel(AVLogger.Level.DEBUG);
         AVOSCloud.initialize(this, LC_App_Id, LC_App_Key, LC_Server_Url);
 
-        //华为推送
-        AVMixPushManager.registerHMSPush(this);
-        //小米
-        AVMixPushManager.registerXiaomiPush(this , MI_APPID, MI_APPKEY);
-        //魅族
-        AVMixPushManager.registerFlymePush(this, MEIZU_APP, MEIZU_KEY);
+//        //华为推送
+//        AVMixPushManager.registerHMSPush(this);
+//        //小米
+//        AVMixPushManager.registerXiaomiPush(this , MI_APPID, MI_APPKEY);
+//        //魅族
+//        AVMixPushManager.registerFlymePush(this, MEIZU_APP, MEIZU_KEY);
 
     }
 }

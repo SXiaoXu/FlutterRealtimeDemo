@@ -111,7 +111,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
           GestureDetector(
             child: Text(
-              '同意用户使用协议',
+              '我已阅读并同意使用协议',
               style: TextStyle(
                 color: Colors.blue,
                 decoration: TextDecoration.underline,

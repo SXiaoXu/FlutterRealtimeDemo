@@ -18,14 +18,13 @@ class _SelectChatMembersState extends State<SelectChatMembers> {
     super.initState();
     removeCurrentClient();
   }
-
   removeCurrentClient() {
     _list.remove(Global.clientID);
     _list.forEach((item) {
       //index:_list.indexOf(item)
       _checkboxSelectedList[item] = false;
     });
-    setState(() {});
+//    setState(() {});
   }
 
   @override
@@ -98,8 +97,6 @@ class _SelectChatMembersState extends State<SelectChatMembers> {
         _selectedClientList.add(key);
       }
     });
-    print(_selectedClientList);
-
     if (_selectedClientList.length == 0) {
       showToastRed('请选择成员！');
       return;

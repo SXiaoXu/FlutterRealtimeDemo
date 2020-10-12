@@ -70,24 +70,24 @@ flutter {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation files("libs/vivo_pushsdk-v2.9.0.0.aar")
-    implementation 'cn.leancloud:mixpush-oppo:6.5.12'
+//    implementation files("libs/vivo_pushsdk-v2.9.0.0.aar")
+//    implementation 'cn.leancloud:mixpush-oppo:6.5.12'
 
     testImplementation 'junit:junit:4.12'
     androidTestImplementation 'androidx.test:runner:1.1.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.1.1'
 
     //使用存储服务
-    implementation 'cn.leancloud:storage-android:7.0.5'
+    implementation 'cn.leancloud:storage-android:6.5.12'
     //使用即时通信
-    implementation 'cn.leancloud:realtime-android:7.0.5'
+    implementation 'cn.leancloud:realtime-android:6.5.12'
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
     //混合推送需要的包
-    implementation 'cn.leancloud:mixpush-android:7.0.5'
+    implementation 'cn.leancloud:mixpush-android:6.5.12'
     //华为推送
-    implementation 'com.huawei.hms:push:4.0.2.300'
-    //魅族推送需要的包
-    implementation 'com.meizu.flyme.internet:push-internal:3.6.+@aar'
-    implementation files("libs/vivo_pushsdk-v2.9.0.0.aar")
-    implementation 'cn.leancloud:mixpush-oppo:6.5.12'
+//    implementation 'com.huawei.hms:push:4.0.2.300'
+//    //魅族推送需要的包
+//    implementation 'com.meizu.flyme.internet:push-internal:3.6.+@aar'
+//    implementation files("libs/vivo_pushsdk-v2.9.0.0.aar")
+//    implementation 'cn.leancloud:mixpush-oppo:6.5.12'
 }

@@ -1,11 +1,11 @@
 import 'dart:async';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_plugin_record/flutter_plugin_record.dart';
 import 'package:lcrealtime/Common/Global.dart';
 import 'package:lcrealtime/States/GlobalEvent.dart';
 import 'package:leancloud_official_plugin/leancloud_plugin.dart';
+import 'package:leancloud_storage/leancloud.dart';
 import 'package:pull_to_refresh/pull_to_refresh.dart';
 import 'package:lcrealtime/Models/CurrentClient.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
@@ -22,7 +22,6 @@ class MessageList extends StatefulWidget {
       this.firstPageMessages,
       this.firstMessage})
       : super(key: key);
-
   @override
   _MessageListState createState() => new _MessageListState();
 }
@@ -46,10 +45,25 @@ class _MessageListState extends State<MessageList> {
   bool _isNeedScrollToNewPage = false;
 
   FlutterPluginRecord recordPlugin;
-
+  Map<String, bool> _checkboxSelectedList = new Map();
+  List<String> _selectList;
+  Set<String> _selectedReportList = new Set();
   @override
   void initState() {
     super.initState();
+    _selectList = [
+      '含有辱骂、人生攻击内容',
+      '不友善内容'
+          '垃圾广告内容',
+      '有害内容',
+      '违法内容',
+      '不实内容',
+      '其他',
+    ];
+    _selectList.forEach((item) {
+      //index:_list.indexOf(item)
+      _checkboxSelectedList[item] = false;
+    });
     _oldMessage = widget.firstMessage;
     if (widget.firstPageMessages != null) {
       _showMessageList = widget.firstPageMessages;
@@ -141,6 +155,8 @@ class _MessageListState extends State<MessageList> {
             .jumpTo(_autoScrollController.position.maxScrollExtent + height);
       });
     }
+    //收到新消息以后再刷新列表
+    mess.emit(MyEvent.ConversationRefresh);
   }
 
   Future _scrollToIndex(int index) async {
@@ -231,7 +247,6 @@ class _MessageListState extends State<MessageList> {
                         _textMessageMaxWidth =
                             MediaQuery.of(context).size.width * 0.7;
                         Message message = _showMessageList[index];
-
                         String fromClientID = message.fromClientID;
                         // string time = message.sentDate;//
                         _isMessagePositionLeft = false;
@@ -253,16 +268,20 @@ class _MessageListState extends State<MessageList> {
                                           ? CrossAxisAlignment.start
                                           : CrossAxisAlignment.end,
                                       children: [
-                                        new Container(
-                                          padding: const EdgeInsets.only(
-                                              right: 8, left: 8),
-                                          child: new Text(
-                                            fromClientID,
-                                            style: new TextStyle(
-                                              fontWeight: FontWeight.normal,
-                                            ),
-                                          ),
-                                        ),
+                                        GestureDetector(
+                                            onLongPress: () {
+                                              //TODO：禁言
+                                            },
+                                            child: Container(
+                                              padding: const EdgeInsets.only(
+                                                  right: 8, left: 8),
+                                              child: new Text(
+                                                fromClientID,
+                                                style: new TextStyle(
+                                                  fontWeight: FontWeight.normal,
+                                                ),
+                                              ),
+                                            )),
                                         Padding(
                                           padding: const EdgeInsets.all(2.0),
                                           child: Flex(
@@ -289,43 +308,51 @@ class _MessageListState extends State<MessageList> {
   //展示不同的消息类型
   Widget typeMessageView(Message message) {
     if (message is TextMessage) {
-      return Container(
-          padding: const EdgeInsets.all(8.0),
-          constraints: BoxConstraints(
-            maxWidth: _textMessageMaxWidth,
-          ),
-          decoration: _isMessagePositionLeft
-              ? BoxDecoration(
-                  color: Colors.blue,
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(12.0),
-                  ),
-                )
-              : BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(12.0),
-                  ),
-                ),
-          child: new Text(
-            getMessageString(message),
-            style: new TextStyle(
-                fontWeight: FontWeight.bold,
-                color: _isMessagePositionLeft ? Colors.white : Colors.blue),
-          ));
+      return GestureDetector(
+          onLongPress: () {
+            showReportDialog(message.id);
+          },
+          child: Container(
+              padding: const EdgeInsets.all(8.0),
+              constraints: BoxConstraints(
+                maxWidth: _textMessageMaxWidth,
+              ),
+              decoration: _isMessagePositionLeft
+                  ? BoxDecoration(
+                      color: Colors.blue,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(12.0),
+                      ),
+                    )
+                  : BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(12.0),
+                      ),
+                    ),
+              child: new Text(
+                getMessageString(message),
+                style: new TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: _isMessagePositionLeft ? Colors.white : Colors.blue),
+              )));
     } else if (message is FileMessage) {
       if (message is ImageMessage) {
-        return Container(
-          constraints: BoxConstraints(
-            maxWidth: MediaQuery.of(context).size.width * 0.4,
-          ),
-          child: CachedNetworkImage(
-            imageUrl: message.url,
-            progressIndicatorBuilder: (context, url, downloadProgress) =>
-                CircularProgressIndicator(value: downloadProgress.progress),
-            errorWidget: (context, url, error) => Icon(Icons.error),
-          ),
-        );
+        return GestureDetector(
+            onLongPress: () {
+              showReportDialog(message.id);
+            },
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: MediaQuery.of(context).size.width * 0.4,
+              ),
+              child: CachedNetworkImage(
+                imageUrl: message.url,
+                progressIndicatorBuilder: (context, url, downloadProgress) =>
+                    CircularProgressIndicator(value: downloadProgress.progress),
+                errorWidget: (context, url, error) => Icon(Icons.error),
+              ),
+            ));
       } else if (message is AudioMessage) {
         int duration = message.duration.toInt();
         double width = _textMessageMaxWidth * (duration / 20);
@@ -336,6 +363,9 @@ class _MessageListState extends State<MessageList> {
           width = _textMessageMaxWidth * (3 / 20);
         }
         return GestureDetector(
+            onLongPress: () {
+              showReportDialog(message.id);
+            },
             onTap: () {
               if (message.url != null) {
 //                mess.emit(MyEvent.PlayAudioMessage, message.url);
@@ -378,7 +408,133 @@ class _MessageListState extends State<MessageList> {
       return Text('暂未支持的消息类型。。。');
     }
   }
+  Future<bool> showlacklistDialog(String name) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("加入黑名单"),
+          content: Text("确认拉黑 $name，不再接受来自 $name 的消息吗"),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("取消"),
+              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
+            ),
+            FlatButton(
+              child: Text("确认"),
+              onPressed: () {
+                //
 
+                //关闭对话框并返回true
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+  Future<bool> showReportDialog(String messageID) async {
+    return showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "举报",
+            textAlign: TextAlign.center,
+          ),
+          content:
+              new StatefulBuilder(builder: (context, StateSetter setState) {
+            return Container(
+//            padding: const EdgeInsets.only(bottom: 8.0, right: 8, left: 10),
+              height: MediaQuery.of(context).size.height * 0.6,
+              width: MediaQuery.of(context).size.width * 0.7,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: <Widget>[
+                  Container(
+                      padding: const EdgeInsets.only(
+                        bottom: 15,
+                      ),
+                      child: Text(
+                        '请选择举报理由',
+                        textAlign: TextAlign.center,
+                        style: new TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
+                  Expanded(
+                      child: ListView.separated(
+                          //添加分割线
+                          separatorBuilder: (BuildContext context, int index) {
+                            return new Divider(
+                              height: 0.5,
+                              color: Colors.grey,
+                            );
+                          },
+                          itemCount: _selectList.length,
+//            itemExtent: 50.0, //强制高度为50.0
+                          itemBuilder: (BuildContext context, int index) {
+                            return CheckboxListTile(
+                              onChanged: (isCheck) {
+                                setState(() {
+                                  _checkboxSelectedList[_selectList[index]] =
+                                      isCheck;
+                                });
+                              },
+                              selected: false,
+                              value: _checkboxSelectedList[_selectList[index]],
+                              title: Text(_selectList[index],
+                                  style: new TextStyle(
+                                    fontSize: 12,
+                                  )),
+                              controlAffinity: ListTileControlAffinity.leading,
+                            );
+                          }))
+                ],
+              ),
+            );
+          }),
+          actions: <Widget>[
+            FlatButton(
+              child: Text("取消"),
+              onPressed: () => Navigator.of(context).pop(), // 关闭对话框
+            ),
+            FlatButton(
+              child: Text("确认"),
+              onPressed: () {
+                saveReports(messageID);
+                //关闭对话框并返回true
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+//TODO:禁言
+  Future addBlackList(String name)async{
+
+  }
+  Future saveReports(String messageID) async {
+    _checkboxSelectedList.forEach((key, value) {
+      if (value == true) {
+        _selectedReportList.add(key);
+      }
+    });
+    if (_selectedReportList.length == 0) {
+      showToastRed('请选择举报理由！');
+      return;
+    }
+LCObject report = LCObject('Report');
+report['clientID'] = Global.clientID;
+report['messageID'] = messageID;
+report['conversationID'] = this.widget.conversation.id;
+report['content'] = _selectedReportList.toString();
+await report.save();
+    showToastGreen('提交成功！');
+  }
 //  时间显示规则：
 //      当天的消息，以每 5 分钟为一个跨度显示时间
 //      消息超过 1 天、小于 1 周，显示为「星期 消息发送时间」
