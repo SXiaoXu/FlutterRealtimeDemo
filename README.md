@@ -18,8 +18,8 @@
 ### 页面截图
 
 <div align = center>
-<img src="https://lc-pdyu5vcy.cn-n1.lcfile.com/0129aa3eed52f5a94473.png/Snip20201019_5.png" width = "597" height = "472" />
-<img src="https://lc-pDyU5vCY.cn-n1.lcfile.com/0e101d6ed6427be8e7ee.png/Snip20201019_6.png" width = "597" height = "472" />
+<img src="https://lc-pdyu5vcy.cn-n1.lcfile.com/0129aa3eed52f5a94473.png/Snip20201019_5.png" />
+<img src="https://lc-pDyU5vCY.cn-n1.lcfile.com/0e101d6ed6427be8e7ee.png/Snip20201019_6.png"/>
 </div>
 <br/>
 
