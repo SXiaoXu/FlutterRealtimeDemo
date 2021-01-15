@@ -400,4 +400,4 @@ return query.find().then((results) => {
 
 - [LeanCloud 即时通信插件链接](https://pub.dev/packages/leancloud_official_plugin#leancloud_official_plugin)
 - [LeanCloud 即时通信开发文档](https://leancloud.cn/docs/#即时通讯)
-- [Flutter 文档](
+- [Flutter 文档](https://flutter.dev/docs)
