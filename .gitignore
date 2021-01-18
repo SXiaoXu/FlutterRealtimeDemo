@@ -23,3 +23,4 @@ doc/api/
 .idea/
 *.iml
 .pub/
+.last_build_id
