@@ -2,7 +2,6 @@ package com.example.lcrealtime;
 
 import androidx.annotation.NonNull;
 
-import cn.leancloud.AVMixPushManager;
 import io.flutter.embedding.android.FlutterActivity;
 import io.flutter.embedding.engine.FlutterEngine;
 import io.flutter.plugins.GeneratedPluginRegistrant;

@@ -1,6 +1,5 @@
 package com.example.lcrealtime;
 import cn.leancloud.AVLogger;
-import cn.leancloud.AVMixPushManager;
 import cn.leancloud.AVOSCloud;
 import cn.leancloud.im.AVIMOptions;
 import io.flutter.app.FlutterApplication;

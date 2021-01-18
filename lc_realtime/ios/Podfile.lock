@@ -19,7 +19,7 @@ PODS:
     - SwiftProtobuf (~> 1.12)
   - leancloud_official_plugin (0.0.1):
     - Flutter
-    - LeanCloud/RTM-no-local-storage (~> 17.5)
+    - LeanCloud/RTM-no-local-storage (~> 17.6)
   - path_provider (0.0.1):
     - Flutter
   - shared_preferences (0.0.1):
@@ -76,7 +76,7 @@ SPEC CHECKSUMS:
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
   image_picker: 9c3312491f862b28d21ecd8fdf0ee14e601b3f09
   LeanCloud: 8efbaea16263795c667b804082a204ac89565140
-  leancloud_official_plugin: ceb817795578f83f4d250542b858b6bb7e3d6ea6
+  leancloud_official_plugin: 4fa7330f9e7310280bb3494848a982bc37cce5f0
   path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
