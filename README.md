@@ -39,8 +39,8 @@ Flutter 新手上路，UI 还有一些问题正在解决中，欢迎小伙伴批
 
 ```
 dependencies:
-  leancloud_official_plugin: ^1.0.0-beta.8   //即时通信插件
-  leancloud_storage: ^0.2.9  //数据存储 SDK
+  leancloud_official_plugin: ^1.0.0   //即时通信插件
+  leancloud_storage: ^0.7.7  //数据存储 SDK
 ```
 
 然后运行 flutter pub get 安装 SDK。
@@ -58,8 +58,8 @@ $ pod update # 或者 $ pod install --repo-update
 
 ```
 dependencies {
-implementation 'cn.leancloud:storage-android:6.5.11'
-implementation 'cn.leancloud:realtime-android:6.5.11'
+implementation 'cn.leancloud:storage-android:8.1.4'
+implementation 'cn.leancloud:realtime-android:8.1.4'
 implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
 }
 ```
