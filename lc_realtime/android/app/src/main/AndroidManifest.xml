@@ -1,190 +1,50 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.lcrealtime">
-    <!-- io.flutter.app.FlutterApplication is an android.app.Application that
-         calls FlutterMain.startInitialization(this); in its onCreate method.
-         In most cases you can leave this as-is, but you if you want to provide
-         additional functionality it is fine to subclass or reimplement
-         FlutterApplication and put your custom class here. -->
-    <!-- 基本模块（必须）START -->
+    package="com.example.lcrealtime"
+    xmlns:tools="http://schemas.android.com/tools">
+
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES"/>
+    <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- 基本模块 END -->
-    <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <!--华为混合推送-->
-    <permission
-        android:name="com.example.lcrealtime.permission.PROCESS_PUSH_MSG"
-        android:protectionLevel="signatureOrSystem"/>
-    <uses-permission android:name="com.example.lcrealtime.permission.PROCESS_PUSH_MSG" />
-    <!--小米推送-->
-    <uses-permission android:name="android.permission.VIBRATE"/>
-    <permission android:name="com.example.lcrealtime.permission.MIPUSH_RECEIVE" android:protectionLevel="signature" />
-    <uses-permission android:name="com.example.lcrealtime.permission.MIPUSH_RECEIVE" />
-<!--魅族-->
-    <!-- 兼容flyme5.0以下版本，魅族内部集成pushSDK必填，不然无法收到消息-->
-    <uses-permission android:name="com.meizu.flyme.push.permission.RECEIVE"></uses-permission>
-    <permission android:name="com.example.lcrealtime.push.permission.MESSAGE" android:protectionLevel="signature"/>
-    <uses-permission android:name="com.example.lcrealtime.push.permission.MESSAGE"></uses-permission>
 
-    <!--  兼容flyme3.0配置权限-->
-    <uses-permission android:name="com.meizu.c2dm.permission.RECEIVE" />
-    <permission android:name="com.example.lcrealtime.permission.C2D_MESSAGE"
-        android:protectionLevel="signature"></permission>
-    <uses-permission android:name="com.example.lcrealtime.permission.C2D_MESSAGE"/>
-
-<!--    Vivo 和 oppo-->
-    <uses-permission android:name="com.coloros.mcs.permission.RECIEVE_MCS_MESSAGE"/>
-    <uses-permission android:name="com.heytap.mcs.permission.RECIEVE_MCS_MESSAGE"/>
     <application
         android:name=".MyApplication"
-        android:label="lcrealtime"
+        android:usesCleartextTraffic="true"
         android:icon="@mipmap/ic_launcher"
-        android:usesCleartextTraffic="true">
+        android:label="lcrealtime"
+        tools:replace="android:icon, android:label"
+        >
         <activity
             android:name=".MainActivity"
-            android:launchMode="singleTop"
-            android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
+            android:launchMode="singleTop"
+            android:theme="@style/LaunchTheme"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-                <category android:name="android.intent.category.LAUNCHER"/>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
 
         <!-- 即时通讯和推送 START -->
         <!-- 即时通讯和推送都需要 PushService -->
-        <service android:name="cn.leancloud.push.PushService"/>
-        <receiver android:name="cn.leancloud.push.AVBroadcastReceiver">
+        <service android:name="cn.leancloud.push.PushService" />
+        <receiver android:name="cn.leancloud.push.LCBroadcastReceiver">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
-                <action android:name="android.intent.action.USER_PRESENT"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.USER_PRESENT" />
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-        <!-- 即时通讯和推送 END -->
-
-        <!--华为混合推送开始-->
-        <!--以下为华为推送模块-->
-        <service
-            android:name="cn.leancloud.AVHMSMessageService"
-            android:exported="false">
-            <intent-filter>
-                <action android:name="com.huawei.push.action.MESSAGING_EVENT" />
-            </intent-filter>
-        </service>
-        <service
-            android:name="com.huawei.hms.support.api.push.service.HmsMsgService"
-            android:enabled="true"
-            android:exported="true"
-            android:process=":pushservice">
-            <intent-filter>
-                <action android:name="com.huawei.push.msg.NOTIFY_MSG" />
-                <action android:name="com.huawei.push.msg.PASSBY_MSG" />
-            </intent-filter>
-        </service>
-        <!--华为推送要求的设置（appId）-->
-        <!--        <meta-data-->
-        <!--            android:name="com.huawei.hms.client.appid"-->
-        <!--            android:value="100771663"></meta-data> &lt;!&ndash; 华为推送要求的 updateProvider &ndash;&gt;-->
-        <!--        <provider-->
-        <!--            android:name="com.huawei.hms.update.provider.UpdateProvider"-->
-        <!--            android:authorities="com.example.vivian.androidsdkdemo.hms.update.provider"-->
-        <!--            android:exported="false"-->
-        <!--            android:grantUriPermissions="true"></provider> &lt;!&ndash; 华为推送要求的 activity &ndash;&gt;-->
-        <!--        <activity-->
-        <!--            android:name="com.huawei.hms.activity.BridgeActivity"-->
-        <!--            android:configChanges="orientation|locale|screenSize|layoutDirection|fontScale"-->
-        <!--            android:excludeFromRecents="true"-->
-        <!--            android:exported="false"-->
-        <!--            android:hardwareAccelerated="true"-->
-        <!--            android:theme="@android:style/Theme.Translucent">-->
-        <!--            <meta-data-->
-        <!--                android:name="hwc-theme"-->
-        <!--                android:value="androidhwext:style/Theme.Emui.Translucent" />-->
-        <!--        </activity>-->
-
-        <!--小米推送-->
-        <service
-            android:name="com.xiaomi.push.service.XMPushService"
-            android:enabled="true"
-            android:process=":pushservice"/>
-
-        <service
-            android:name="com.xiaomi.push.service.XMJobService"
-            android:enabled="true"
-            android:exported="false"
-            android:permission="android.permission.BIND_JOB_SERVICE"
-            android:process=":pushservice" />
-
-        <service
-            android:name="com.xiaomi.mipush.sdk.PushMessageHandler"
-            android:enabled="true"
-            android:exported="true"/>
-
-        <service
-            android:name="com.xiaomi.mipush.sdk.MessageHandleService"
-            android:enabled="true"/>
-
-        <receiver
-            android:name="com.xiaomi.push.service.receivers.NetworkStatusReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="android.net.conn.CONNECTIVITY_CHANGE"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name="com.xiaomi.push.service.receivers.PingReceiver"
-            android:exported="false"
-            android:process=":pushservice">
-            <intent-filter>
-                <action android:name="com.xiaomi.push.PING_TIMER"/>
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name="cn.leancloud.AVMiPushMessageReceiver"
-            android:exported="true">
-            <intent-filter>
-                <action android:name="com.xiaomi.mipush.RECEIVE_MESSAGE"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.xiaomi.mipush.MESSAGE_ARRIVED"/>
-            </intent-filter>
-            <intent-filter>
-                <action android:name="com.xiaomi.mipush.ERROR"/>
-            </intent-filter>
-        </receiver>
-        <!--魅族推送-->
-        <receiver android:name="cn.leancloud.AVFlymePushMessageReceiver">
-            <intent-filter>
-                <!-- 接收push消息 -->
-                <action android:name="com.meizu.flyme.push.intent.MESSAGE" />
-                <!-- 接收register消息 -->
-                <action android:name="com.meizu.flyme.push.intent.REGISTER.FEEDBACK" />
-                <!-- 接收unregister消息-->
-                <action android:name="com.meizu.flyme.push.intent.UNREGISTER.FEEDBACK"/>
-                <!-- 兼容低版本Flyme3推送服务配置 -->
-                <action android:name="com.meizu.c2dm.intent.REGISTRATION" />
-                <action android:name="com.meizu.c2dm.intent.RECEIVE" />
-                <category android:name="com.example.lcrealtime"></category>
-            </intent-filter>
-        </receiver>
-
 
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
-
     </application>
-
 </manifest>
