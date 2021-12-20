@@ -19,8 +19,8 @@ Flutter 新手上路，UI 还有一些问题正在解决中，欢迎小伙伴批
 ### 页面截图
 
 <div align = center>
-<img src="https://lc-pdyu5vcy.cn-n1.lcfile.com/0129aa3eed52f5a94473.png/Snip20201019_5.png" />
-<img src="https://lc-pDyU5vCY.cn-n1.lcfile.com/0e101d6ed6427be8e7ee.png/Snip20201019_6.png"/>
+<img src="https://flutter-rtm-files.lncld.net/IHr8IxRu6Vxehorq2pkVjxeXsKRHmpuI/fluttter-image2.png" />
+<img src="https://flutter-rtm-files.lncld.net/a7BGPtGhGXO0ksAxWwQ4hPt4lpw4WiR0/flutter-image1.png"/>
 </div>
 <br/>
 
@@ -235,7 +235,7 @@ await this.widget.conversation.send(message: audioMessage);
 
 还要注意，iOS 推送一定要正确配置 [配置 APNs 推送证书](https://leancloud.cn/docs/ios_push_cert.html)，并打开 Xcode 的推送开关：
 
-<img src="https://lc-pDyU5vCY.cn-n1.lcfile.com/b01aff6f2bdc608c058c.png/84587ede-dcf7-4417-bcef-1519d172ceda.png" width = "535" height = "281.4" />
+<img src="https://flutter-rtm-files.lncld.net/RWnGwak6L1GyIQlw1wn2x9GHaFdWeLBT/flutter-push.png" width = "535" height = "281.4" />
 
 
 AppDelegate.swift 中开启推送，要这样设置：
@@ -330,7 +330,7 @@ import UserNotifications
 
 我的解决办法是在消息处长按弹出举报窗口。
 
-<img src="https://lc-pDyU5vCY.cn-n1.lcfile.com/a0a180ce30b221f8dfc0.png/report.png" width = "288" height = "513" />
+<img src="https://flutter-rtm-files.lncld.net/TI5Nrg10SoJo6UOwsmvPhTYTgfgQaUNS/flutter-blacklist.png" width = "288" height = "513" />
 
 使用 LeanCloud 存储服务，新建一张 Report 表用于记录举报信息：
 
@@ -346,11 +346,11 @@ await report.save(); //保存举报信息
 
 可以在控制台查看举报内容：
 
-![img](https://lc-pDyU5vCY.cn-n1.lcfile.com/c40eef4909993405c688.png/dae5cbca-6b27-43e5-a49e-df5561c6da9f.png)
+![img](https://flutter-rtm-files.lncld.net/mIipnS9TSLbljz6AWVlnwUmmjrU9fmkS/flutter-show-report.png)
 
 ### 实现黑名单功能
 
-<img src="https://lc-pDyU5vCY.cn-n1.lcfile.com/77302c6a7c97c25471de.png/blacklist.png" width = "288" height = "513" />
+<img src="https://flutter-rtm-files.lncld.net/2alFiYaBQ17JffxBK3pJHXvNW3DeJzYz/flutter-add-blacklist.png" width = "288" height = "513" />
 
 我的解决办法是，在联系人列表处单击联系人弹框提示是否加入黑名单。
 
@@ -358,7 +358,7 @@ await report.save(); //保存举报信息
 
 实现起来也比较简单，把下面这个云函数粘贴在 LeanCloud 控制台 > 云引擎 >云函数在线编辑框中即可。
 
-![img](https://lc-pDyU5vCY.cn-n1.lcfile.com/14b3d005f070241d1f05.png/bd006a73-cf3d-45e8-acc5-5bbc8b4b74d3.png)
+![img](https://flutter-rtm-files.lncld.net/3yuFiTVjXvY0HtIXe6TMVmOqRWtFfpM3/flutter-hook.png)
 
 > 步骤
 >
