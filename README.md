@@ -1,4 +1,5 @@
 Flutter 新手上路，UI 还有一些问题正在解决中，欢迎小伙伴批评指正 ：)
+* [apk 体验链接](https://flutter-rtm-files.lncld.net/fWtxzeC8GzvFGTB3r0G7gBl1rvnbjyI9/app-release.apk)
 ## 应用简介
 
 本应用是一款社交聊天的应用，实现了基本的聊天需求。实现这款应用一方面是为了了解与学习 Flutter，另一方面趁此机会熟悉 LeanCloud 即时通信 Flutter SDK 的使用。
@@ -393,7 +394,7 @@ return query.find().then((results) => {
 })
 ```
 
-## APP 安装
+## APP 安装(因开发者账号调整，暂不可用)
 
 [APP Store 下载链接](https://apps.apple.com/cn/app/leanmessage/id1529417244)
 
