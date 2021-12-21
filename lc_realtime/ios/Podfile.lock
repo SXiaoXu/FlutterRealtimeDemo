@@ -1,5 +1,5 @@
 PODS:
-  - Alamofire (5.2.2)
+  - Alamofire (5.5.0)
   - audioplayers (0.0.1):
     - Flutter
   - Flutter (1.0.0)
@@ -7,27 +7,29 @@ PODS:
     - Flutter
   - fluttertoast (0.0.2):
     - Flutter
+    - Toast
   - FMDB (2.7.5):
     - FMDB/standard (= 2.7.5)
   - FMDB/standard (2.7.5)
   - image_picker (0.0.1):
     - Flutter
-  - LeanCloud/Foundation (17.6.1):
-    - Alamofire (~> 5.2)
-  - LeanCloud/RTM-no-local-storage (17.6.1):
-    - LeanCloud/Foundation (= 17.6.1)
-    - SwiftProtobuf (~> 1.12)
+  - LeanCloud/Foundation (17.10.1):
+    - Alamofire (~> 5.4)
+  - LeanCloud/RTM-no-local-storage (17.10.1):
+    - LeanCloud/Foundation (= 17.10.1)
+    - SwiftProtobuf (~> 1.18)
   - leancloud_official_plugin (0.0.1):
     - Flutter
-    - LeanCloud/RTM-no-local-storage (~> 17.6)
-  - path_provider (0.0.1):
+    - LeanCloud/RTM-no-local-storage (~> 17.10)
+  - path_provider_ios (0.0.1):
     - Flutter
-  - shared_preferences (0.0.1):
+  - shared_preferences_ios (0.0.1):
     - Flutter
-  - sqflite (0.0.1):
+  - sqflite (0.0.2):
     - Flutter
-    - FMDB (~> 2.7.2)
-  - SwiftProtobuf (1.12.0)
+    - FMDB (>= 2.7.5)
+  - SwiftProtobuf (1.18.0)
+  - Toast (4.0.0)
 
 DEPENDENCIES:
   - audioplayers (from `.symlinks/plugins/audioplayers/ios`)
@@ -36,16 +38,17 @@ DEPENDENCIES:
   - fluttertoast (from `.symlinks/plugins/fluttertoast/ios`)
   - image_picker (from `.symlinks/plugins/image_picker/ios`)
   - leancloud_official_plugin (from `.symlinks/plugins/leancloud_official_plugin/ios`)
-  - path_provider (from `.symlinks/plugins/path_provider/ios`)
-  - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
+  - path_provider_ios (from `.symlinks/plugins/path_provider_ios/ios`)
+  - shared_preferences_ios (from `.symlinks/plugins/shared_preferences_ios/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
 
 SPEC REPOS:
-  trunk:
+  https://github.com/CocoaPods/Specs.git:
     - Alamofire
     - FMDB
     - LeanCloud
     - SwiftProtobuf
+    - Toast
 
 EXTERNAL SOURCES:
   audioplayers:
@@ -60,28 +63,29 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker/ios"
   leancloud_official_plugin:
     :path: ".symlinks/plugins/leancloud_official_plugin/ios"
-  path_provider:
-    :path: ".symlinks/plugins/path_provider/ios"
-  shared_preferences:
-    :path: ".symlinks/plugins/shared_preferences/ios"
+  path_provider_ios:
+    :path: ".symlinks/plugins/path_provider_ios/ios"
+  shared_preferences_ios:
+    :path: ".symlinks/plugins/shared_preferences_ios/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
 
 SPEC CHECKSUMS:
-  Alamofire: 814429acc853c6c54ff123fc3d2ef66803823ce0
-  audioplayers: 84f968cea3f2deab00ec4f8ff53358b3c0b3992c
-  Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
+  Alamofire: 1c4fb5369c3fe93d2857c780d8bbe09f06f97e7c
+  audioplayers: 455322b54050b30ea4b1af7cd9e9d105f74efa8c
+  Flutter: 50d75fe2f02b26cc09d224853bb45737f8b3214a
   flutter_plugin_record: 562ded56f3a109d769e72c3ef52ef20d835493d4
-  fluttertoast: b644586ef3b16f67fae9a1f8754cef6b2d6b634b
+  fluttertoast: 6122fa75143e992b1d3470f61000f591a798cc58
   FMDB: 2ce00b547f966261cd18927a3ddb07cb6f3db82a
-  image_picker: 9c3312491f862b28d21ecd8fdf0ee14e601b3f09
-  LeanCloud: 8efbaea16263795c667b804082a204ac89565140
-  leancloud_official_plugin: 4fa7330f9e7310280bb3494848a982bc37cce5f0
-  path_provider: abfe2b5c733d04e238b0d8691db0cfd63a27a93c
-  shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
-  sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
-  SwiftProtobuf: 4ef85479c18ca85b5482b343df9c319c62bda699
+  image_picker: 9aa50e1d8cdacdbed739e925b7eea16d014367e6
+  LeanCloud: e6de4b8129ab68be7f70a9b77c4304f71c5a1a2c
+  leancloud_official_plugin: 6f30dc57a7f181193f511355c17519a61dce033d
+  path_provider_ios: 7d7ce634493af4477d156294792024ec3485acd5
+  shared_preferences_ios: aef470a42dc4675a1cdd50e3158b42e3d1232b32
+  sqflite: 6d358c025f5b867b29ed92fc697fd34924e11904
+  SwiftProtobuf: c3c12645230d9b09c72267e0de89468c5543bd86
+  Toast: 91b396c56ee72a5790816f40d3a94dd357abc196
 
-PODFILE CHECKSUM: aafe91acc616949ddb318b77800a7f51bffa2a4c
+PODFILE CHECKSUM: 216a07bd17c29f43047bcc707524116833a4fb33
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.11.2
